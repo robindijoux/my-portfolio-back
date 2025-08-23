@@ -1,0 +1,24 @@
+meta {
+  name: Delete project
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/projects/{{project_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should delete project successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Delete a project by its ID.
+  
+  This will permanently remove the project and all associated media files.
+  Use with caution as this operation cannot be undone.
+}

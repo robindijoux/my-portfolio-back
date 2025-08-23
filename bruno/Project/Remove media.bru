@@ -1,0 +1,45 @@
+meta {
+  name: Remove media
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/projects/{{project_id}}/media
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "uuid-of-media-to-remove",
+    "type": "PHOTO",
+    "url": "/uploads/1692789123456-sample-image.jpg",
+    "alt": "Sample project screenshot"
+  }
+}
+
+tests {
+  test("should remove media successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("should return updated project", function() {
+    expect(res.getBody()).to.have.property('id');
+    expect(res.getBody()).to.have.property('media');
+  });
+}
+
+docs {
+  Remove a specific media file from a project.
+  
+  The request body should contain the exact media object to remove:
+  - id: The unique identifier of the media (required)
+  - type: The media type (PHOTO or VIDEO)
+  - url: The exact URL of the media file
+  - alt: The alternative text (if any)
+  
+  All fields must match exactly for the media to be removed.
+  
+  Note: Update the ID and URL in the body to match an actual media file from your project.
+}

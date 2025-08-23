@@ -1,0 +1,129 @@
+@startuml Architecture DDD - Portfolio Backend
+
+!define PRESENTATION_COLOR #E8F4FD
+!define APPLICATION_COLOR #FFF2CC
+!define DOMAIN_COLOR #D5E8D4
+!define INFRASTRUCTURE_COLOR #F8CECC
+!define MODULE_COLOR #E1D5E7
+
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+  BorderThickness 2
+}
+
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "Presentation Layer" PRESENTATION_COLOR {
+  class ProjectController {
+    - projectService: ProjectService
+    + getAllProjects(): Promise<Project[]>
+    + createProject(data: any): Promise<Project>
+    + deleteProject(id: string): Promise<void>
+    + getProjectById(id: string): Promise<Project>
+  }
+  
+  note right of ProjectController : REST API Controller\n@Controller('projects')
+}
+
+package "Application Layer" APPLICATION_COLOR {
+  class ProjectService {
+    - projectRepository: IProjectRepository
+    + list(): Promise<Project[]>
+    + create(data: any): Promise<Project>
+    + delete(id: string): Promise<void>
+    + get(id: string): Promise<Project>
+  }
+  
+  note right of ProjectService : Business Logic\n@Injectable()
+}
+
+package "Domain Layer" DOMAIN_COLOR {
+  class Project {
+    + id: string
+    + name: string
+    + description: string
+    + views: number
+    + isPublished: boolean
+  }
+  
+  interface IProjectRepository {
+    + findAll(): Promise<Project[]>
+    + findById(id: string): Promise<Project | null>
+    + save(project: Project): Promise<Project>
+    + delete(id: string): Promise<void>
+  }
+  
+  note right of Project : Domain Entity\nPure business object
+  note right of IProjectRepository : Repository Interface\nDefines data access contract
+}
+
+package "Infrastructure Layer" INFRASTRUCTURE_COLOR {
+  class ProjectDB {
+    + id: string
+    + name: string
+    + description: string
+    + views: number
+    + isPublished: boolean
+  }
+  
+  class ProjectDBRepository {
+    - projectRepository: Repository<ProjectDB>
+    + findAll(): Promise<Project[]>
+    + findById(id: string): Promise<Project | null>
+    + save(project: Project): Promise<Project>
+    + delete(id: string): Promise<void>
+  }
+  
+  note right of ProjectDB : TypeORM Entity\n@Entity()
+  note right of ProjectDBRepository : Repository Implementation\nHandles database operations
+}
+
+package "Module Layer" MODULE_COLOR {
+  class ProjectModule {
+    + providers: Provider[]
+    + controllers: Controller[]
+    + imports: Module[]
+  }
+  
+  class AppModule {
+    + imports: Module[]
+  }
+  
+  note right of ProjectModule : NestJS Module\nDependency Injection Container
+  note right of AppModule : Root Module\nApplication Entry Point
+}
+
+package "Configuration" {
+  class env {
+    + PORT: number
+    + DATABASE: DatabaseConfig
+    + FRONTEND_URL: string
+  }
+}
+
+' Relationships
+ProjectController --> ProjectService : uses
+ProjectService --> IProjectRepository : depends on
+ProjectDBRepository ..|> IProjectRepository : implements
+ProjectDBRepository --> ProjectDB : uses
+ProjectDBRepository --> Project : returns
+
+ProjectModule --> ProjectController : provides
+ProjectModule --> ProjectService : provides
+ProjectModule --> ProjectDBRepository : provides
+AppModule --> ProjectModule : imports
+
+' Dependency Flow (showing DDD layers)
+ProjectController ..> Project : manipulates
+ProjectService ..> Project : orchestrates
+IProjectRepository ..> Project : operates on
+
+' Notes about DDD principles
+note bottom : **Domain-Driven Design Architecture**\n\n**Presentation Layer**: Controllers, DTOs, HTTP handling\n**Application Layer**: Use cases, orchestration, business workflows\n**Domain Layer**: Entities, value objects, domain services, repository interfaces\n**Infrastructure Layer**: Database, external services, framework-specific code\n\n**Key DDD Principles Applied:**\n- Dependency Inversion: Application depends on domain interfaces\n- Clean Architecture: Dependencies point inward\n- Separation of Concerns: Each layer has distinct responsibilities
+
+@enduml

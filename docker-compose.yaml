@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: portfolio_postgres
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: portfolio_user
+      POSTGRES_PASSWORD: portfolio_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio_user -d portfolio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - portfolio_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: portfolio_api
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: portfolio_user
+      DB_PASSWORD: portfolio_password
+      DB_NAME: portfolio
+      DB_SYNC: true
+      PORT: 3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - portfolio_network
+    command: yarn start -w
+    volumes:
+      - yarn_deps:/app/node_modules
+      - ./src:/app/src
+
+volumes:
+  postgres_data:
+  yarn_deps:
+
+networks:
+  portfolio_network:
+    driver: bridge

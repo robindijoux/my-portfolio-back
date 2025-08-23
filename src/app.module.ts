@@ -1,10 +1,28 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ProjectModule } from './module/project/project.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { env } from './config/env';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ProjectModule,
+    TypeOrmModule.forRoot({
+      type: env.DATABASE.TYPE,
+      host: env.DATABASE.HOST,
+      port: env.DATABASE.PORT,
+      username: env.DATABASE.USERNAME,
+      password: env.DATABASE.PASSWORD,
+      database: env.DATABASE.NAME,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: env.DATABASE.SYNC,
+    }),
+    ConfigModule.forRoot({
+      envFilePath: ['.env'],
+    }),
+  ],
+
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
