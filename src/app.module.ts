@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProjectModule } from './module/project/project.module';
 import { TechnoModule } from './module/techno/techno.module';
+import { HealthModule } from './presentation/health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config/env';
 import { ConfigModule } from '@nestjs/config';
@@ -9,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ProjectModule,
     TechnoModule,
+    HealthModule,
     TypeOrmModule.forRoot({
       type: env.DATABASE.TYPE,
       host: env.DATABASE.HOST,
