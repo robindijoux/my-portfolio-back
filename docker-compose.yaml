@@ -24,15 +24,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     container_name: portfolio_api
-    environment:
-      NODE_ENV: development
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: portfolio_user
-      DB_PASSWORD: portfolio_password
-      DB_NAME: portfolio
-      DB_SYNC: true
-      PORT: 3002
+    env_file:
+      - .env
     ports:
       - "3002:3002"
     depends_on:

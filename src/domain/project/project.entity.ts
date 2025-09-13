@@ -1,4 +1,5 @@
 import { Media } from './media.entity';
+import { Techno } from './techno.entity';
 
 export class Project {
   id: string;
@@ -7,9 +8,12 @@ export class Project {
   description: string;
   views: number;
   isPublished: boolean;
+  featured: boolean;
   repositoryLink?: string;
   projectLink?: string;
   media: Media[];
+  techStack: Techno[];
+  createdAt: Date;
 
   constructor(
     id: string,
@@ -18,9 +22,12 @@ export class Project {
     description: string,
     views: number,
     isPublished: boolean,
+    createdAt: Date,
+    featured: boolean,
     repositoryLink?: string,
     projectLink?: string,
     media?: Media[],
+    techStack?: Techno[],
   ) {
     this.id = id;
     this.name = name;
@@ -31,6 +38,9 @@ export class Project {
     this.repositoryLink = repositoryLink;
     this.projectLink = projectLink;
     this.media = media ? [...media] : [];
+    this.techStack = techStack ? [...techStack] : [];
+    this.createdAt = createdAt;
+    this.featured = featured;
   }
 
   addMedia(m: Media): void {
@@ -45,5 +55,19 @@ export class Project {
 
   clearMedia(): void {
     this.media = [];
+  }
+
+  addTechStack(tech: Techno): void {
+    if (!this.techStack.some((x) => x.id === tech.id)) {
+      this.techStack.push(tech);
+    }
+  }
+
+  removeTechStack(tech: Techno): void {
+    this.techStack = this.techStack.filter((x) => x.id !== tech.id);
+  }
+
+  clearTechStack(): void {
+    this.techStack = [];
   }
 }

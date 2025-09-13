@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { MediaDB } from '../media-db/media-db.entity';
+import { TechnoDB } from '../techno-db/techno-db.entity';
 
 @Entity()
 export class ProjectDB {
@@ -24,10 +25,10 @@ export class ProjectDB {
   @Column({ nullable: true })
   isPublished: boolean;
 
-  @Column({ nullable: true })
+  @Column('date')
   createdAt: Date;
 
-  @Column({ nullable: true })
+  @Column('date', { nullable: true })
   updatedAt: Date;
 
   @Column('int', { default: 0 })
@@ -39,4 +40,18 @@ export class ProjectDB {
     orphanedRowAction: 'delete',
   })
   media: MediaDB[];
+
+  @Column('boolean', { default: false })
+  featured: boolean;
+
+  @ManyToMany(() => TechnoDB, (techno) => techno.projects, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinTable({
+    name: 'project_techno',
+    joinColumn: { name: 'project_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'techno_id', referencedColumnName: 'id' },
+  })
+  techStack: TechnoDB[];
 }

@@ -1,0 +1,38 @@
+meta {
+  name: Add technology to project
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/projects/{{project_id}}/techno
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "{{techno_id}}",
+    "technology": "React",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+  }
+}
+
+tests {
+  test("should add technology to project successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('techStack');
+    expect(res.getBody().techStack).to.be.an('array');
+  });
+}
+
+docs {
+  Add a technology to a project's tech stack.
+  
+  The request body should contain the complete technology object:
+  - id: Technology ID (required)
+  - technology: Technology name (required)
+  - iconUrl: Technology icon URL (required)
+  
+  The technology will be added to the project's techStack array.
+}

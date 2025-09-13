@@ -1,0 +1,27 @@
+meta {
+  name: Get technology
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/technologies/{{techno_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should get technologies list successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.be.an('array');
+  });
+}
+
+docs {
+  Get all available technologies.
+  
+  Returns an array of technology objects with:
+  - id: Unique identifier
+  - technology: Technology name
+  - iconUrl: Technology icon URL
+}

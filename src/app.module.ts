@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ProjectModule } from './module/project/project.module';
+import { TechnoModule } from './module/techno/techno.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config/env';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ProjectModule,
+    TechnoModule,
     TypeOrmModule.forRoot({
       type: env.DATABASE.TYPE,
       host: env.DATABASE.HOST,
@@ -16,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       database: env.DATABASE.NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: env.DATABASE.SYNC,
+      dropSchema: env.DATABASE.SYNC,
     }),
     ConfigModule.forRoot({
       envFilePath: ['.env'],

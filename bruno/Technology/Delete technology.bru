@@ -1,0 +1,27 @@
+meta {
+  name: Delete technology
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/technologies/{{techno_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should delete technology successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Delete a technology completely from the system.
+  
+  URL Parameters:
+  - id: Technology ID to delete
+  
+  This will permanently remove the technology from the database.
+  Warning: This operation cannot be undone.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Remove technology from project
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/projects/{{project_id}}/techno/{{techno_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should remove technology from project successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('techStack');
+  });
+}
+
+docs {
+  Remove a technology from a project's tech stack.
+  
+  URL Parameters:
+  - id: Project ID
+  - technoId: Technology ID to remove
+  
+  The technology will be removed from the project's techStack array.
+}

@@ -20,7 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ProjectService } from 'src/application/project/project.service';
-import { CreateProjectDTO, type MediaDTO } from './project.dto';
+import { CreateProjectDTO, type MediaDTO, TechnoDTO } from './project.dto';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -191,5 +191,24 @@ export class ProjectController {
   @ApiResponse({ status: 404, description: 'Project or media not found' })
   async removeMedia(@Param('id') id: string, @Param('mediaId') mediaId: string) {
     return this.projectService.removeMedia(id, mediaId);
+  }
+
+  @Post(':id/techno')
+  @ApiOperation({ summary: 'Add technology to a project' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiResponse({ status: 201, description: 'Technology added successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async addTechnology(@Param('id') id: string, @Body() techno: TechnoDTO) {
+    return this.projectService.addTechnology(id, techno);
+  }
+
+  @Delete(':id/techno/:technoId')
+  @ApiOperation({ summary: 'Remove technology from a project' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiParam({ name: 'technoId', description: 'Technology ID to remove' })
+  @ApiResponse({ status: 200, description: 'Technology removed successfully' })
+  @ApiResponse({ status: 404, description: 'Project or technology not found' })
+  async removeTechnology(@Param('id') id: string, @Param('technoId') technoId: string) {
+    return this.projectService.removeTechnology(id, technoId);
   }
 }

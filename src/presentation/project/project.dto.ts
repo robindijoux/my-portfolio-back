@@ -1,5 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export class TechnoDTO {
+  @ApiProperty({ description: 'Unique technology identifier' })
+  id: string;
+
+  @ApiProperty({ description: 'Technology name' })
+  technology: string;
+
+  @ApiProperty({ description: 'Technology icon URL' })
+  iconUrl: string;
+}
+
+export class CreateTechnoDTO {
+  @ApiProperty({ description: 'Technology name' })
+  technology: string;
+
+  @ApiProperty({ description: 'Technology icon URL' })
+  iconUrl: string;
+}
+
+export class SimpleTechnoDTO {
+  @ApiProperty({ description: 'Technology name' })
+  technology: string;
+
+  @ApiProperty({ description: 'Technology icon URL' })
+  iconUrl: string;
+}
+
 export class MediaDTO {
   @ApiProperty({ description: 'Unique media identifier' })
   id: string;
@@ -71,14 +98,26 @@ export class CreateProjectDTO {
   })
   media: MediaDTO[];
 
+  @ApiProperty({ description: 'Indicates if the project is featured' })
+  featured: boolean;
+
+  @ApiProperty({
+    description: 'Technologies used in the project (will be created if they don\'t exist)',
+    type: [SimpleTechnoDTO],
+    default: [],
+  })
+  techStack?: SimpleTechnoDTO[];
+
   constructor(
     name: string,
     description: string,
     isPublished: boolean,
     shortDescription: string,
+    featured: boolean,
     repositoryLink?: string,
     projectLink?: string,
     media: MediaDTO[] = [],
+    techStack: TechnoDTO[] = [],
   ) {
     this.name = name;
     this.description = description;
@@ -87,6 +126,8 @@ export class CreateProjectDTO {
     this.repositoryLink = repositoryLink;
     this.projectLink = projectLink;
     this.media = media;
+    this.featured = featured;
+    this.techStack = techStack;
   }
 }
 
@@ -97,6 +138,9 @@ export class ProjectDTO extends CreateProjectDTO {
   @ApiProperty({ description: 'Number of project views' })
   views: number;
 
+  @ApiProperty({ description: 'Project creation date' })
+  createdAt: Date;
+
   constructor(
     id: string,
     name: string,
@@ -104,20 +148,26 @@ export class ProjectDTO extends CreateProjectDTO {
     isPublished: boolean,
     views: number,
     shortDescription: string,
+    createdAt: Date,
+    featured: boolean,
     repositoryLink?: string,
     projectLink?: string,
     media: MediaDTO[] = [],
+  techStack: TechnoDTO[] = [],
   ) {
     super(
       name,
       description,
       isPublished,
       shortDescription,
+      featured,
       repositoryLink,
       projectLink,
       media,
+      techStack,
     );
     this.id = id;
     this.views = views;
+    this.createdAt = createdAt;
   }
 }

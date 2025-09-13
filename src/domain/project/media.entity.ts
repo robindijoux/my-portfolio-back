@@ -4,10 +4,10 @@ export enum MediaType {
 }
 
 export class Media {
-  readonly id: string;
-  readonly type: MediaType;
-  readonly url: string;
-  readonly alt?: string;
+  id: string;
+  type: MediaType;
+  url: string;
+  alt?: string;
 
   constructor(id: string, type: MediaType, url: string, alt?: string) {
     if (!id || id.trim().length === 0) {

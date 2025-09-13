@@ -3,10 +3,14 @@ import {
   CreateProjectDTO,
   ProjectDTO,
   MediaDTO,
+  TechnoDTO,
+  SimpleTechnoDTO,
 } from 'src/presentation/project/project.dto';
 import { ProjectDB } from 'src/infra/db/project-db/project-db.entity';
 import { MediaDB } from 'src/infra/db/media-db/media-db.entity';
+import { TechnoDB } from 'src/infra/db/techno-db/techno-db.entity';
 import { Media, MediaType } from 'src/domain/project/media.entity';
+import { Techno } from 'src/domain/project/techno.entity';
 
 export function fromDTO(dto: ProjectDTO): Project {
   return new Project(
@@ -16,6 +20,8 @@ export function fromDTO(dto: ProjectDTO): Project {
     dto.description,
     dto.views,
     dto.isPublished,
+    dto.createdAt,
+    dto.featured,
     dto.repositoryLink,
     dto.projectLink,
     dto.media?.map(
@@ -32,6 +38,8 @@ export function toDTO(entity: Project): ProjectDTO {
     entity.isPublished,
     entity.views,
     entity.shortDescription,
+    entity.createdAt,
+    entity.featured,
     entity.repositoryLink,
     entity.projectLink || '',
     entity.media.map((m: Media) => ({
@@ -39,6 +47,11 @@ export function toDTO(entity: Project): ProjectDTO {
       type: m.type,
       url: m.url,
       alt: m.alt,
+    })),
+    entity.techStack.map((t: Techno) => ({
+      id: t.id,
+      technology: t.technology,
+      iconUrl: t.iconUrl,
     })),
   );
 }
@@ -51,11 +64,15 @@ export function fromCreateDTO(dto: CreateProjectDTO): Project {
     dto.description,
     0, // Initial views count
     dto.isPublished,
+    new Date(),
+    dto.featured,
     dto.repositoryLink,
     dto.projectLink,
     dto.media?.map(
       (m: MediaDTO) => new Media(m.id, MediaType[m.type], m.url, m.alt),
     ),
+    // Les technologies seront gérées dans le service, pas ici
+    [],
   );
 }
 
@@ -69,6 +86,8 @@ export function toDB(entity: Project): ProjectDB {
   db.isPublished = entity.isPublished;
   db.repositoryLink = entity.repositoryLink;
   db.projectLink = entity.projectLink;
+  db.createdAt = entity.createdAt;
+  db.featured = entity.featured;
   db.media = entity.media.map((m: Media) => {
     const row = new MediaDB();
     row.id = m.id;
@@ -76,6 +95,13 @@ export function toDB(entity: Project): ProjectDB {
     row.url = m.url;
     row.alt = m.alt;
     return row;
+  });
+  db.techStack = entity.techStack.map((t: Techno) => {
+    const techRow = new TechnoDB();
+    techRow.id = t.id;
+    techRow.technology = t.technology;
+    techRow.iconUrl = t.iconUrl;
+    return techRow;
   });
   return db;
 }
@@ -88,10 +114,15 @@ export function fromDB(db: ProjectDB): Project {
     db.description,
     db.views,
     db.isPublished,
+    db.createdAt,
+    db.featured,
     db.repositoryLink,
     db.projectLink,
     (db.media || []).map(
       (m) => new Media(m.id, MediaType[m.type], m.url, m.alt),
+    ),
+    (db.techStack || []).map(
+      (t) => new Techno(t.id, t.technology, t.iconUrl),
     ),
   );
 }

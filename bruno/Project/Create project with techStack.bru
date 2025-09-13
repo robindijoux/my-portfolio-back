@@ -1,0 +1,71 @@
+meta {
+  name: Create project with techStack
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/projects
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Portfolio React/Node.js",
+    "description": "Application de portfolio full-stack construite avec React, Node.js, NestJS et PostgreSQL. Interface moderne avec TypeScript.",
+    "shortDescription": "Portfolio full‑stack React/Node",
+    "repositoryLink": "https://github.com/username/portfolio-react",
+    "projectLink": "https://portfolio-react.example.com",
+    "isPublished": true,
+    "featured": true,
+    "media": [],
+    "techStack": [
+      {
+        "technology": "React",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+      },
+      {
+        "technology": "Node.js",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg"
+      },
+      {
+        "technology": "TypeScript",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      }
+    ]
+  }
+}
+
+script:post-response {
+  bru.setEnvVar('project_with_tech_id', res.body.id)
+}
+
+tests {
+  test("should create project with techStack successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('id');
+    expect(res.getBody()).to.have.property('techStack');
+    expect(res.getBody().techStack).to.be.an('array');
+    expect(res.getBody().techStack.length).to.be.greaterThan(0);
+  });
+}
+
+docs {
+  Create a new project with associated technologies.
+  
+  ✅ SIMPLIFIED APPROACH:
+  - Just provide technology name and iconUrl in techStack
+  - Backend automatically handles existing vs new technologies
+  - Single request creates everything atomically
+  
+  The techStack array now uses SimpleTechnoDTO objects:
+  - technology: Technology name (required) 
+  - iconUrl: Technology icon URL (required)
+  
+  ⚡ Benefits:
+  - 1 request instead of multiple
+  - Automatic deduplication by technology name
+  - Atomic transaction (all or nothing)
+  - No ID management needed on frontend
+}
