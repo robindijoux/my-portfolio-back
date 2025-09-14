@@ -1,0 +1,21 @@
+meta {
+  name: Delete media
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{host}}/media/{{mediaId}}
+  body: none
+  auth: none
+}
+
+vars {
+  mediaId: replace-with-actual-media-id
+}
+
+tests {
+  test("should delete media", function() {
+    expect(res.status).to.equal(204);
+  });
+}

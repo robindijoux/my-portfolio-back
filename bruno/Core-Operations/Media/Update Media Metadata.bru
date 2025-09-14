@@ -1,0 +1,31 @@
+meta {
+  name: Update media metadata
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{host}}/media/{{mediaId}}/metadata
+  body: json
+  auth: none
+}
+
+vars {
+  mediaId: replace-with-actual-media-id
+}
+
+body:json {
+  {
+    "alt": "Updated alternative text for the media"
+  }
+}
+
+tests {
+  test("should update media metadata", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('id');
+    expect(res.body.id).to.equal('{{mediaId}}');
+    expect(res.body).to.have.property('alt');
+    expect(res.body.alt).to.equal('Updated alternative text for the media');
+  });
+}

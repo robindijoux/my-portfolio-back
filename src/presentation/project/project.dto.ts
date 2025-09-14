@@ -31,37 +31,53 @@ export class MediaDTO {
   @ApiProperty({ description: 'Unique media identifier' })
   id: string;
 
-  @ApiProperty({ description: 'Media type', enum: ['PHOTO', 'VIDEO'] })
-  type: 'PHOTO' | 'VIDEO';
+  @ApiProperty({ description: 'Media type', enum: ['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT'] })
+  type: 'PHOTO' | 'VIDEO' | 'PDF' | 'DOCUMENT';
 
   @ApiProperty({ description: 'Media URL' })
   url: string;
 
   @ApiProperty({ description: 'Alternative text for the media', required: false })
   alt?: string;
+
+  @ApiProperty({ description: 'Original file name' })
+  originalName: string;
+
+  @ApiProperty({ description: 'Generated file name on server' })
+  fileName: string;
+
+  @ApiProperty({ description: 'MIME type of the file' })
+  mimeType: string;
+
+  @ApiProperty({ description: 'File size in bytes' })
+  size: number;
+
+  @ApiProperty({ description: 'Upload timestamp' })
+  uploadedAt: string;
+
+  @ApiProperty({ description: 'User who uploaded the file', required: false })
+  uploadedBy?: string;
 }
 
 export class MediaUploadDto {
   @ApiProperty({
     type: 'string',
     format: 'binary',
-    description: 'Image file to upload (JPG, JPEG, PNG, GIF, WEBP)',
+    description: 'File to upload (Images: JPG, JPEG, PNG, GIF, WEBP; Videos: MP4, MOV, MPEG, WEBM; Documents: PDF, DOC, DOCX, TXT)',
   })
   file: any;
 
   @ApiProperty({
-    description: 'Alternative text for the image',
+    description: 'Alternative text for the media',
     required: false,
   })
   alt?: string;
 
   @ApiProperty({
-    enum: ['PHOTO', 'VIDEO'],
-    description: 'Media type',
-    default: 'PHOTO',
+    description: 'Folder to organize files (optional, will be auto-determined if not provided)',
     required: false,
   })
-  type?: 'PHOTO' | 'VIDEO';
+  folder?: string;
 }
 
 export type MediaUploadDTO = {
@@ -71,6 +87,14 @@ export type MediaUploadDTO = {
     type?: 'PHOTO' | 'VIDEO';
   };
 };
+
+export class AddMediaToProjectDTO {
+  @ApiProperty({ 
+    description: 'ID of previously uploaded media to associate with the project',
+    example: '123e4567-e89b-12d3-a456-426614174000'
+  })
+  mediaId: string;
+}
 
 export class CreateProjectDTO {
   @ApiProperty({ description: 'Project name' })
@@ -92,11 +116,15 @@ export class CreateProjectDTO {
   projectLink?: string;
 
   @ApiProperty({
-    description: 'Media associated with the project',
-    type: [Object],
+    description: 'Array of previously uploaded media IDs. Upload media first using POST /media/upload, then reference them here by ID.',
+    type: [String],
     default: [],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "456e7890-e89b-12d3-a456-426614174001"
+    ]
   })
-  media: MediaDTO[];
+  media: string[];
 
   @ApiProperty({ description: 'Indicates if the project is featured' })
   featured: boolean;
@@ -116,7 +144,7 @@ export class CreateProjectDTO {
     featured: boolean,
     repositoryLink?: string,
     projectLink?: string,
-    media: MediaDTO[] = [],
+    media: string[] = [],
     techStack: TechnoDTO[] = [],
   ) {
     this.name = name;
@@ -131,15 +159,50 @@ export class CreateProjectDTO {
   }
 }
 
-export class ProjectDTO extends CreateProjectDTO {
+export class ProjectDTO {
   @ApiProperty({ description: 'Unique project identifier' })
   id: string;
+
+  @ApiProperty({ description: 'Project name' })
+  name: string;
+
+  @ApiProperty({ description: 'Detailed project description' })
+  description: string;
+
+  @ApiProperty({ description: 'Indicates if the project is published' })
+  isPublished: boolean;
 
   @ApiProperty({ description: 'Number of project views' })
   views: number;
 
+  @ApiProperty({ description: 'Short project description' })
+  shortDescription: string;
+
   @ApiProperty({ description: 'Project creation date' })
   createdAt: Date;
+
+  @ApiProperty({ description: 'Repository link', required: false })
+  repositoryLink?: string;
+
+  @ApiProperty({ description: 'Online project link', required: false })
+  projectLink?: string;
+
+  @ApiProperty({
+    description: 'Array of media objects associated with the project',
+    type: [MediaDTO],
+    default: [],
+  })
+  media: MediaDTO[];
+
+  @ApiProperty({ description: 'Indicates if the project is featured' })
+  featured: boolean;
+
+  @ApiProperty({
+    description: 'Technologies used in the project',
+    type: [TechnoDTO],
+    default: [],
+  })
+  techStack: TechnoDTO[];
 
   constructor(
     id: string,
@@ -153,21 +216,19 @@ export class ProjectDTO extends CreateProjectDTO {
     repositoryLink?: string,
     projectLink?: string,
     media: MediaDTO[] = [],
-  techStack: TechnoDTO[] = [],
+    techStack: TechnoDTO[] = [],
   ) {
-    super(
-      name,
-      description,
-      isPublished,
-      shortDescription,
-      featured,
-      repositoryLink,
-      projectLink,
-      media,
-      techStack,
-    );
     this.id = id;
+    this.name = name;
+    this.description = description;
+    this.isPublished = isPublished;
     this.views = views;
+    this.shortDescription = shortDescription;
     this.createdAt = createdAt;
+    this.featured = featured;
+    this.repositoryLink = repositoryLink;
+    this.projectLink = projectLink;
+    this.media = media;
+    this.techStack = techStack;
   }
 }

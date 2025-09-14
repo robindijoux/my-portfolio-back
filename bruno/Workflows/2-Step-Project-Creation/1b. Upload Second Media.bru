@@ -1,0 +1,64 @@
+meta {
+  name: 1b. Upload Second Media
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/media/upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(/Users/robindijoux/Pictures/others/pixelcut-export.jpeg)
+  alt: Secondary project screenshot
+  folder: projects
+}
+
+script:post-response {
+  // Store the second uploaded media ID for multi-media project creation
+  bru.setEnvVar('uploaded_media_id_2', res.body.id);
+  bru.setEnvVar('uploaded_media_url_2', res.body.url);
+  bru.setEnvVar('uploaded_media_type_2', res.body.type);
+  bru.setEnvVar('uploaded_media_alt_2', res.body.alt);
+  bru.setEnvVar('uploaded_media_original_name_2', res.body.originalName);
+  bru.setEnvVar('uploaded_media_file_name_2', res.body.fileName);
+  bru.setEnvVar('uploaded_media_mime_type_2', res.body.mimeType);
+  bru.setEnvVar('uploaded_media_size_2', res.body.size);
+  bru.setEnvVar('uploaded_media_uploaded_at_2', res.body.uploadedAt);
+}
+
+tests {
+  test("should upload second media successfully", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.have.property('id');
+    expect(res.body).to.have.property('url');
+    expect(res.body.url).to.include('s3.amazonaws.com');
+    expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
+    expect(res.body.alt).to.equal('Secondary project screenshot');
+  });
+}
+
+docs {
+  # Step 1b: Upload Second Media
+  
+  **Workflow Multi-Media** - Upload additionnel
+  
+  ## 🎯 Objectif
+  Upload d'un second fichier média pour démontrer la création de projet avec multiple médias.
+  
+  ## 📤 Ce que fait ce test
+  - ✅ Upload du second fichier vers S3
+  - ✅ Stockage des variables pour projet multi-média
+  - ✅ Préparation pour "3. Create Project with Multiple Media"
+  
+  ## 📋 Variables créées
+  - `uploaded_media_id_2` - **REQUIS** pour projet multi-média
+  
+  ## ➡️ Utilisation
+  - Utilisable avec "3. Create Project with Multiple Media"
+  - Ou pour ajouter à un projet existant
+  
+  **Note**: Ce test est optionnel - utilisez-le uniquement pour tester les projets multi-médias.
+}

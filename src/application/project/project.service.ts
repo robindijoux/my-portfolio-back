@@ -5,7 +5,7 @@ import {
 } from 'src/domain/project/project.repository';
 import {
   CreateProjectDTO,
-  type MediaDTO,
+  MediaDTO,
   TechnoDTO,
 } from 'src/presentation/project/project.dto';
 import { fromCreateDTO, toDTO } from './project.mapper';
@@ -29,40 +29,66 @@ export class ProjectService {
   }
 
   async create(new_project: CreateProjectDTO) {
-    // 1. Gérer les technologies (créer ou récupérer existantes)
-    const technoEntities: Techno[] = [];
-    
-    if (new_project.techStack && new_project.techStack.length > 0) {
-      for (const techDto of new_project.techStack) {
-        // Rechercher si la technologie existe déjà (par nom, insensible à la casse)
-        let existingTechno = await this.technoRepository.findByName(techDto.technology);
+    return this.createWithMediaIds(new_project);
+  }
 
-        if (existingTechno) {
-          // Utiliser la technologie existante
-          technoEntities.push(existingTechno);
-        } else {
-          // Créer une nouvelle technologie
-          const newTechno = new Techno(
-            crypto.randomUUID(),
-            techDto.technology,
-            techDto.iconUrl
-          );
-          const savedTechno = await this.technoRepository.save(newTechno);
-          technoEntities.push(savedTechno);
+  /**
+   * Create a project with media IDs (2-step workflow)
+   * Media should be uploaded first using MediaService, then referenced by ID here
+   */
+  async createWithMediaIds(projectData: CreateProjectDTO) {
+    try {
+      // 1. Validate and fetch media entities if IDs are provided
+      const mediaEntities: Media[] = [];
+      
+      if (projectData.media && projectData.media.length > 0) {
+        for (const mediaId of projectData.media) {
+          // Fetch existing media by ID
+          const existingMedia = await this.mediaRepository.findById(mediaId);
+          if (!existingMedia) {
+            throw new Error(`Media with ID ${mediaId} not found`);
+          }
+          mediaEntities.push(existingMedia);
         }
       }
-    }
 
-    // 2. Créer l'entité projet avec les technologies résolues
-    let domain_entity = fromCreateDTO(new_project);
-    domain_entity.id = crypto.randomUUID();
-    
-    // Remplacer le techStack par les entités résolues
-    domain_entity.techStack = technoEntities;
-    
-    // 3. Sauvegarder le projet
-    domain_entity = await this.projectRepository.save(domain_entity);
-    return toDTO(domain_entity);
+      // 2. Handle technologies (existing logic)
+      const technoEntities: Techno[] = [];
+      
+      if (projectData.techStack && projectData.techStack.length > 0) {
+        for (const techDto of projectData.techStack) {
+          let existingTechno = await this.technoRepository.findByName(techDto.technology);
+
+          if (existingTechno) {
+            technoEntities.push(existingTechno);
+          } else {
+            const newTechno = new Techno(
+              crypto.randomUUID(),
+              techDto.technology,
+              techDto.iconUrl
+            );
+            const savedTechno = await this.technoRepository.save(newTechno);
+            technoEntities.push(savedTechno);
+          }
+        }
+      }
+
+      // 3. Create project entity
+      let domain_entity = fromCreateDTO(projectData);
+      domain_entity.id = crypto.randomUUID();
+      
+      // Set technologies and media
+      domain_entity.techStack = technoEntities;
+      domain_entity.media = mediaEntities;
+      
+      // 4. Save project
+      domain_entity = await this.projectRepository.save(domain_entity);
+      
+      return toDTO(domain_entity);
+
+    } catch (error) {
+      throw error;
+    }
   }
 
   async delete(id: string) {
@@ -83,8 +109,48 @@ export class ProjectService {
       throw new Error('Project not found');
     }
     const mediaId = media.id || crypto.randomUUID(); // Generate ID if not provided
-    const vo = new Media(mediaId, MediaType[media.type], media.url, media.alt);
+    
+    // Créer une entité Media complète avec des valeurs par défaut pour les champs manquants
+    const vo = new Media(
+      mediaId, 
+      MediaType[media.type], 
+      media.url, 
+      media.originalName || 'legacy-file',
+      media.fileName || media.originalName || 'legacy-file',
+      media.mimeType || 'application/octet-stream',
+      media.size || 0,
+      media.uploadedAt ? new Date(media.uploadedAt) : new Date(),
+      media.alt,
+      media.uploadedBy
+    );
+    
     entity.addMedia(vo);
+    const saved = await this.projectRepository.save(entity);
+    return toDTO(saved);
+  }
+
+  /**
+   * Add existing media to project by media ID (2-step workflow)
+   */
+  async addMediaById(projectId: string, mediaId: string) {
+    const entity = await this.projectRepository.findById(projectId);
+    if (!entity) {
+      throw new Error('Project not found');
+    }
+
+    // Check if media exists
+    const existingMedia = await this.mediaRepository.findById(mediaId);
+    if (!existingMedia) {
+      throw new Error(`Media with ID ${mediaId} not found`);
+    }
+
+    // Check if media is already associated with this project
+    const isAlreadyAssociated = entity.media.some(m => m.id === mediaId);
+    if (isAlreadyAssociated) {
+      throw new Error('Media is already associated with this project');
+    }
+
+    entity.addMedia(existingMedia);
     const saved = await this.projectRepository.save(entity);
     return toDTO(saved);
   }

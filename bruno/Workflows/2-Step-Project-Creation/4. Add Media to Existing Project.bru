@@ -1,0 +1,70 @@
+meta {
+  name: 4. Add Media to Existing Project
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/projects/{{two_step_project_id}}/media
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "mediaId": "{{uploaded_media_id_2}}"
+  }
+}
+
+tests {
+  test("should add media successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('media');
+    expect(res.getBody().media).to.be.an('array');
+  });
+  
+  test("should have media with correct properties", function() {
+    const media = res.getBody().media;
+    expect(media.length).to.be.greaterThan(1);
+    
+    // Check that the new media was added
+    const addedMedia = media.find(m => m.id === bru.getEnvVar('uploaded_media_id_2'));
+    expect(addedMedia).to.exist;
+    expect(addedMedia.alt).to.equal('Secondary project screenshot');
+  });
+}
+
+docs {
+  # Step 4: Add Media to Existing Project
+  
+  **Extension de projet** - Ajout a posteriori
+  
+  ## 🎯 Objectif
+  Ajouter un média existant à un projet déjà créé pour démontrer la flexibilité post-création.
+  
+  ## 📥 Prérequis
+  - ✅ Projet existant (variable `two_step_project_id`)
+  - ✅ Média existant (variable `uploaded_media_id_2`)
+  - ✅ Exécuter les étapes 1, 1b et 2 avant ce test
+  
+  ## 📤 Ce que fait ce test
+  - ✅ Ajoute un média existant à un projet existant
+  - ✅ Valide que le média n'est pas déjà associé
+  - ✅ Met à jour les associations projet-média
+  - ✅ Retourne le projet mis à jour
+  
+  ## 🗂️ Payload simple
+  ```json
+  {
+    "mediaId": "id-du-media-existant"
+  }
+  ```
+  
+  ## ✅ Cas d'usage
+  - **Enrichissement**: Ajouter des médias après création
+  - **Évolution**: Projets qui s'étoffent dans le temps
+  - **Flexibilité**: Gestion granulaire des associations
+  - **Maintenance**: Ajouts/retraits dynamiques
+  
+  **Note**: Le média doit exister et ne pas être déjà associé au projet.
+}

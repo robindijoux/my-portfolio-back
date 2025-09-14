@@ -7,28 +7,16 @@ import {
   Logger,
   Param,
   Post,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBody,
-  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProjectService } from 'src/application/project/project.service';
-import { CreateProjectDTO, type MediaDTO, TechnoDTO } from './project.dto';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-
-interface UploadedFile {
-  originalname: string;
-  buffer: Buffer;
-  mimetype: string;
-}
+import { CreateProjectDTO, TechnoDTO, AddMediaToProjectDTO } from './project.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -47,11 +35,18 @@ export class ProjectController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new project' })
+  @ApiOperation({ 
+    summary: 'Create a new project with media IDs',
+    description: 'Create a project using IDs of previously uploaded media files. Upload media files first using POST /media/upload, then use their IDs here.'
+  })
+  @ApiBody({
+    description: 'Project data with media IDs',
+    type: CreateProjectDTO,
+  })
   @ApiResponse({ status: 201, description: 'Project created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid data' })
-  async createProject(@Body() data: CreateProjectDTO) {
-    return this.projectService.create(data);
+  @ApiResponse({ status: 400, description: 'Invalid data or media not found' })
+  async createProject(@Body() projectData: CreateProjectDTO) {
+    return this.projectService.createWithMediaIds(projectData);
   }
 
   @Delete(':id')
@@ -74,39 +69,17 @@ export class ProjectController {
 
   @Post(':id/media')
   @ApiOperation({
-    summary: 'Add media (image) to a project',
-    description:
-      'Upload an image file and associate it with the specified project',
+    summary: 'Associate existing media with a project',
+    description: 'Associate a previously uploaded media file with the specified project using its ID. Upload media first using POST /media/upload.'
   })
   @ApiParam({ name: 'id', description: 'Project ID' })
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Image file to upload with optional metadata',
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-          description: 'Image file (JPG, JPEG, PNG, GIF, WEBP)',
-        },
-        alt: {
-          type: 'string',
-          description: 'Alternative text for the image',
-        },
-        type: {
-          type: 'string',
-          enum: ['PHOTO', 'VIDEO'],
-          description: 'Media type',
-          default: 'PHOTO',
-        },
-      },
-      required: ['file'],
-    },
+    description: 'Media ID to associate with the project',
+    type: AddMediaToProjectDTO,
   })
   @ApiResponse({
     status: 201,
-    description: 'Media added successfully to the project',
+    description: 'Media associated successfully with the project',
     schema: {
       type: 'object',
       properties: {
@@ -117,7 +90,7 @@ export class ProjectController {
             type: 'object',
             properties: {
               id: { type: 'string' },
-              type: { type: 'string', enum: ['PHOTO', 'VIDEO'] },
+              type: { type: 'string', enum: ['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT'] },
               url: { type: 'string' },
               alt: { type: 'string' },
             },
@@ -126,62 +99,13 @@ export class ProjectController {
       },
     },
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Missing file or unsupported file type',
-  })
-  @ApiResponse({ status: 404, description: 'Project not found' })
-  @ApiResponse({ status: 413, description: 'File too large (max 5MB)' })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return callback(
-            new BadRequestException('Only image files are allowed'),
-            false,
-          );
-        }
-        callback(null, true);
-      },
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB max
-      },
-    }),
-  )
-  async addMedia(
-    @Param('id') id: string,
-    @UploadedFile() file: UploadedFile,
-    @Body() metadata?: { alt?: string; type?: 'PHOTO' | 'VIDEO' },
+  @ApiResponse({ status: 400, description: 'Invalid media ID' })
+  @ApiResponse({ status: 404, description: 'Project or media not found' })
+  async addMediaToProject(
+    @Param('id') projectId: string,
+    @Body() addMediaDto: AddMediaToProjectDTO,
   ) {
-    if (!file) {
-      throw new BadRequestException('File is required');
-    }
-
-    try {
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = join(process.cwd(), 'uploads');
-      await mkdir(uploadsDir, { recursive: true });
-
-      // Generate unique filename to avoid conflicts
-      const timestamp = Date.now();
-      const uniqueFilename = `${timestamp}-${file.originalname}`;
-      const filePath = join(uploadsDir, uniqueFilename);
-
-      // Write file to disk
-      await writeFile(filePath, file.buffer);
-
-      const mediaDTO: MediaDTO = {
-        id: crypto.randomUUID(), // Generate unique ID for the media
-        type: metadata?.type || 'PHOTO',
-        url: `/uploads/${uniqueFilename}`,
-        alt: metadata?.alt,
-      };
-
-      return this.projectService.addMedia(id, mediaDTO);
-    } catch (error) {
-      Logger.error('Error saving file:', error);
-      throw new BadRequestException('Failed to save file');
-    }
+    return this.projectService.addMediaById(projectId, addMediaDto.mediaId);
   }
 
   @Delete(':id/media/:mediaId')

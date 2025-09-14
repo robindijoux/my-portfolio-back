@@ -1,0 +1,25 @@
+meta {
+  name: Get media by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/media/{{mediaId}}
+  body: none
+  auth: none
+}
+
+vars {
+  mediaId: replace-with-actual-media-id
+}
+
+tests {
+  test("should get media by ID", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('id');
+    expect(res.body.id).to.equal('{{mediaId}}');
+    expect(res.body).to.have.property('url');
+    expect(res.body).to.have.property('type');
+  });
+}

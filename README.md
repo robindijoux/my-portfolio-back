@@ -1,120 +1,114 @@
-# Portfolio Backend API
+# 🎯 Portfolio Backend API
 
-A robust RESTful API for managing a developer's portfolio built with NestJS, following Domain-Driven Design (DDD) principles. Features comprehensive project management, media upload capabilities, and cloud storage integration.
+Une API RESTful robuste pour la gestion d'un portfolio de développeur, construite avec NestJS et suivant les principes du Domain-Driven Design (DDD). Elle propose une gestion complète des projets, des capacités d'upload de médias et une intégration cloud.
 
-## 🚀 Features
+## ✨ Fonctionnalités Principales
 
-- **Domain-Driven Design Architecture**: Clean separation of concerns with domain, application, infrastructure, and presentation layers
-- **Project Management**: Full CRUD operations for portfolio projects with metadata
-- **Media Upload & Management**: 
-  - File upload support with validation (JPG, JPEG, PNG, GIF, WEBP)
-  - File size limits (5MB max)
-  - Unique filename generation to prevent conflicts
-  - Static file serving with proper URL mapping
-- **Cloud Storage Integration**: AWS S3 support with configurable endpoints (including MinIO compatibility)
-- **RESTful API**: Well-structured endpoints following REST conventions
-- **Swagger Documentation**: Auto-generated API documentation with file upload support
-- **Database Integration**: PostgreSQL with TypeORM and entity relationships
-- **Docker Support**: Complete containerization with Docker Compose
-- **Error Handling**: Comprehensive exception handling and validation
-- **CORS Support**: Cross-origin resource sharing enabled
-- **Type Safety**: Full TypeScript implementation with strict type checking
+- **🏗️ Architecture DDD** : Séparation claire des responsabilités avec couches domain, application, infrastructure et présentation
+- **📊 Gestion de Projets** : CRUD complet pour les projets portfolio avec métadonnées  
+- **📁 Upload & Gestion de Médias** : Upload de fichiers avec validation, limitation de taille et génération de noms uniques
+- **☁️ Intégration Cloud** : Support AWS S3 avec compatibilité MinIO
+- **📚 Documentation Swagger** : Documentation API auto-générée
+- **🗄️ Base de Données** : PostgreSQL avec TypeORM et relations entre entités
+- **🐳 Support Docker** : Conteneurisation complète avec Docker Compose
+- **🔒 Gestion d'Erreurs** : Validation et gestion d'exceptions complète
+- **🌐 Support CORS** : Partage de ressources cross-origin
+- **💪 TypeScript** : Implémentation complète avec vérification de types stricte
 
-## 🏗️ Architecture
+## 🏗️ Architecture DDD
 
-This project follows Domain-Driven Design (DDD) principles with a clean architecture approach:
+Ce projet suit les principes du Domain-Driven Design avec une approche d'architecture propre :
 
 ```
 src/
-├── application/                 # Application Layer
+├── domain/                      # 🔵 Couche Domaine (Cœur Métier)
 │   └── project/
-│       ├── project.service.ts   # Business workflows and use cases
-│       └── project.mapper.ts    # Domain ↔ DTO mapping
-├── domain/                      # Domain Layer (Business Core)
+│       ├── project.entity.ts    # Entité domaine avec logique métier
+│       ├── project.repository.ts # Interface repository
+│       └── media.vo.ts          # Objet de valeur Media
+├── application/                 # 🟢 Couche Application
 │   └── project/
-│       ├── project.entity.ts    # Domain entity with business logic
-│       ├── project.repository.ts # Repository interface
-│       └── media.vo.ts          # Media value object
-├── infra/                       # Infrastructure Layer
+│       ├── project.service.ts   # Workflows et cas d'usage métier
+│       └── project.mapper.ts    # Mapping Domain ↔ DTO
+├── infra/                       # 🟡 Couche Infrastructure
 │   └── db/
 │       ├── project-db/
-│       │   ├── project-db.entity.ts     # TypeORM entity
-│       │   ├── project-db.repository.ts # Repository implementation
-│       │   └── project-db.providers.ts  # Dependency injection
+│       │   ├── project-db.entity.ts     # Entité TypeORM
+│       │   ├── project-db.repository.ts # Implémentation repository
+│       │   └── project-db.providers.ts  # Injection de dépendance
 │       └── media-db/
-│           └── media-db.entity.ts       # Media TypeORM entity
-├── presentation/                # Presentation Layer
+│           └── media-db.entity.ts       # Entité Media TypeORM
+├── presentation/                # 🔴 Couche Présentation
 │   └── project/
-│       ├── project.controller.ts # HTTP REST controllers
-│       └── project.dto.ts        # Data Transfer Objects
-├── module/                      # NestJS Modules
+│       ├── project.controller.ts # Contrôleurs REST HTTP
+│       └── project.dto.ts        # Objets de Transfert de Données
+├── module/                      # 📦 Modules NestJS
 │   └── project/
-│       └── project.module.ts     # Dependency injection container
-├── config/                      # Configuration
-│   └── env.ts                   # Environment configuration
-└── types/                       # Type definitions (if needed)
+│       └── project.module.ts     # Conteneur d'injection de dépendance
+└── config/                      # ⚙️ Configuration
+    └── env.ts                   # Configuration d'environnement
 ```
 
-### Key DDD Principles Applied:
-- **Dependency Inversion**: Application and domain layers define interfaces, infrastructure implements them
-- **Clean Architecture**: Dependencies point inward toward the domain
-- **Domain Isolation**: Business logic is isolated from technical concerns
-- **Value Objects**: Immutable objects like `Media` with business validation
-- **Repository Pattern**: Abstract data access with clean interfaces
+### 🎯 Principes DDD Appliqués
+- **Inversion de Dépendances** : Les couches application et domaine définissent les interfaces
+- **Architecture Propre** : Les dépendances pointent vers le domaine
+- **Isolation du Domaine** : Logique métier isolée des préoccupations techniques
+- **Objets de Valeur** : Objets immutables comme `Media` avec validation métier
+- **Pattern Repository** : Accès aux données abstrait avec interfaces propres
 
-## 📋 Prerequisites
+## 📋 Prérequis
 
-- **Node.js** (v18 or higher)
-- **Docker & Docker Compose** (for containerized deployment)
-- **PostgreSQL** (if running without Docker)
-- **Yarn** (package manager)
+- **Node.js** (v18 ou supérieur)
+- **Docker & Docker Compose** (pour le déploiement conteneurisé)
+- **PostgreSQL** (si exécution sans Docker)
+- **Yarn** (gestionnaire de paquets)
 
-## 🚀 Quick Start
+## 🚀 Démarrage Rapide
 
-### Using Docker (Recommended)
+### 🐳 Avec Docker (Recommandé)
 
-1. **Clone the repository**
+1. **Cloner le repository**
    ```bash
    git clone <repository-url>
    cd portfolio/backend
    ```
 
-2. **Start the application**
+2. **Démarrer l'application**
    ```bash
    docker-compose up -d
    ```
 
-3. **Access the API**
-   - API: http://localhost:3002/api
-   - Swagger Documentation: http://localhost:3002/docs
-   - Database: PostgreSQL on localhost:5432
+3. **Accéder à l'API**
+   - API : http://localhost:3002/api
+   - Documentation Swagger : http://localhost:3002/docs
+   - Base de données : PostgreSQL sur localhost:5432
 
-### Manual Setup
+### ⚙️ Installation Manuelle
 
-1. **Install dependencies**
+1. **Installer les dépendances**
    ```bash
    yarn install
    ```
 
-2. **Set up environment variables**
+2. **Configurer les variables d'environnement**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Éditer .env avec votre configuration
    ```
 
-3. **Start PostgreSQL database**
+3. **Démarrer la base de données PostgreSQL**
    ```bash
    docker-compose up postgres -d
    ```
 
-4. **Create uploads directory**
+4. **Créer le répertoire uploads**
    ```bash
    mkdir -p uploads
    ```
 
-5. **Run the application**
+5. **Lancer l'application**
    ```bash
-   # Development
+   # Développement
    yarn start:dev
    
    # Production
@@ -122,57 +116,112 @@ src/
    yarn start:prod
    ```
 
-## 📚 API Documentation
+## 📚 Documentation API
 
-The API documentation is automatically generated using Swagger and available at:
-- **Local Development**: http://localhost:3001/docs (manual setup)
-- **Docker Environment**: http://localhost:3002/docs
-- **Production**: `<your-domain>/docs`
+Documentation automatiquement générée avec Swagger disponible à :
+- **Développement Local** : http://localhost:3001/docs (installation manuelle)
+- **Environnement Docker** : http://localhost:3002/docs
+- **Production** : `<votre-domaine>/docs`
 
-### Main Endpoints
+### 🔗 Endpoints Principaux
 
-| Method | Endpoint | Description | Features |
-|--------|----------|-------------|----------|
-| GET | `/api/projects` | Get all projects | List with media |
-| GET | `/api/projects/:id` | Get project by ID | Include media URLs |
-| POST | `/api/projects` | Create new project | With validation |
-| DELETE | `/api/projects/:id` | Delete project | Cascade delete media |
-| POST | `/api/projects/:id/media` | Upload media file | **File upload with metadata** |
-| DELETE | `/api/projects/:id/media` | Remove media | Remove specific media |
+| Méthode | Endpoint | Description | Fonctionnalités |
+|---------|----------|-------------|-----------------|
+| GET | `/api/projects` | Récupérer tous les projets | Liste avec médias |
+| GET | `/api/projects/:id` | Récupérer un projet par ID | Inclut URLs médias |
+| POST | `/api/projects` | Créer un nouveau projet | Avec validation |
+| DELETE | `/api/projects/:id` | Supprimer un projet | Suppression en cascade |
+| POST | `/api/projects/:id/media` | **Upload fichier média** | **Upload avec métadonnées** |
+| DELETE | `/api/projects/:id/media` | Supprimer un média | Suppression spécifique |
 
-### File Upload Features
+### 📁 Fonctionnalités d'Upload
 
-The `/api/projects/:id/media` endpoint supports:
-- **File Types**: JPG, JPEG, PNG, GIF, WEBP
-- **File Size**: Maximum 5MB
-- **Metadata**: Alternative text and media type (PHOTO/VIDEO)
-- **Unique Naming**: Timestamp-based filename generation
-- **Validation**: Comprehensive file type and size validation
-- **Static Serving**: Uploaded files accessible via `/uploads/` URL prefix
+L'endpoint `/api/projects/:id/media` supporte :
+- **Types de Fichiers** : JPG, JPEG, PNG, GIF, WEBP
+- **Taille de Fichier** : Maximum 5MB
+- **Métadonnées** : Texte alternatif et type de média (PHOTO/VIDEO)
+- **Nommage Unique** : Génération basée sur timestamp
+- **Validation** : Validation complète type et taille de fichier
+- **Diffusion Statique** : Fichiers accessibles via préfixe URL `/uploads/`
 
-## 🗄️ Database
+## 🗄️ Base de Données
 
-The application uses PostgreSQL as the primary database with TypeORM as the ORM.
+PostgreSQL avec TypeORM comme ORM. Relations entre entités `ProjectDB` ↔ `MediaDB` (1:N).
 
-### Database Schema
+### 📋 Schéma Principal
+- **ProjectDB** : Informations projet (nom, description, liens, vues, dates)
+- **MediaDB** : Fichiers médias liés (type, URL, alt, metadata)
 
-- **ProjectDB**: Main entity storing project information
-  - `id`, `name`, `description`, `shortDescription`
-  - `repositoryLink`, `projectLink`, `isPublished`
-  - `views`, `createdAt`, `updatedAt`
-- **MediaDB**: Related entity for project media files
-  - `id`, `type` (PHOTO/VIDEO), `url`, `alt`
-  - Foreign key relationship to `ProjectDB`
+## 🧪 Tests
 
-### Entity Relationships
-
-```typescript
-ProjectDB (1) ——— (N) MediaDB
+```bash
+yarn test              # Tests unitaires
+yarn test:watch        # Mode watch
+yarn test:cov          # Couverture
+yarn test:e2e          # Tests E2E
 ```
 
-- One-to-many relationship with cascade operations
-- Orphan deletion for media without projects
-- Eager loading of media in project queries
+## 🔧 Développement
+
+```bash
+yarn start:dev         # Serveur dev avec hot reload
+yarn build             # Build production
+yarn format            # Formatage Prettier
+yarn lint              # Lint ESLint
+```
+
+## 🌍 Variables d'Environnement
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `PORT` | Port serveur | `3001` |
+| `DB_HOST` | Host base de données | `localhost` |
+| `DB_NAME` | Nom base de données | `portfolio` |
+| `FRONTEND_URL` | URL frontend (CORS) | `http://localhost:3000` |
+| `S3_BUCKET` | Nom bucket S3 | `my-portfolio-media` |
+
+> 📖 **Documentation Complète** : Voir [Variables d'Environnement](#) pour la liste complète
+
+## 🐳 Docker
+
+```bash
+docker-compose up -d    # Démarrer tous les services
+docker-compose logs -f  # Voir les logs
+docker-compose down     # Arrêter
+```
+
+**Services** : API (port 3002) + PostgreSQL (port 5432)
+
+## 📖 Documentation Avancée
+
+- **[📁 Guide API Media](./MEDIA_API_GUIDE.md)** - Upload de fichiers et gestion des médias
+- **[🛠️ Implémentation Techno](./TECHNO_IMPLEMENTATION.md)** - Système de technologies pour projets
+- **[🧪 Collections Bruno](./bruno/)** - Tests API et exemples d'utilisation
+
+## 🔗 Stack Technologique
+
+**Core** : NestJS, TypeScript, Node.js  
+**Base de Données** : PostgreSQL, TypeORM  
+**Upload** : Multer, AWS S3  
+**Documentation** : Swagger/OpenAPI  
+**Tests** : Jest, Bruno API  
+**DevOps** : Docker, ESLint, Prettier  
+
+## 🤝 Contribution
+
+1. Fork → Branch → Changes → Tests → PR
+2. Suivre les principes DDD et la structure des couches
+3. Utiliser les conventional commits
+
+## 📝 Licence & Auteur
+
+**Licence** : UNLICENSED  
+**Auteur** : Robin Dijoux (dr@ecomail.fr)  
+**Repository** : [my-portfolio-back](https://github.com/robindijoux/my-portfolio-back)
+
+---
+
+*Construit avec ❤️ using NestJS, TypeScript et les principes Domain-Driven Design.*
 
 ## 🧪 Testing
 

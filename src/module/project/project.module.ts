@@ -29,7 +29,9 @@ import { TechnoDBRepository } from 'src/infra/db/techno-db/techno-db.repository'
     }
   ],
   exports: [],
-  imports: [TypeOrmModule.forFeature([ProjectDB, MediaDB, TechnoDB])],
+  imports: [
+    TypeOrmModule.forFeature([ProjectDB, MediaDB, TechnoDB])
+  ],
   controllers: [ProjectController],
 })
 export class ProjectModule {}

@@ -10,14 +10,13 @@ export const env = {
     SYNC: process.env.DB_SYNC === 'true' || false,
   },
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
-  STORAGE: {
-    PROVIDER: process.env.STORAGE_PROVIDER || 's3',
+  // Configuration AWS centralisée
+  AWS: {
+    REGION: process.env.AWS_REGION || 'eu-west-3',
     S3: {
-      REGION: process.env.S3_REGION || 'eu-west-1',
-      BUCKET: process.env.S3_BUCKET || 'my-portfolio-media',
-      ENDPOINT: process.env.S3_ENDPOINT, // optional (e.g., MinIO)
-      FORCE_PATH_STYLE: process.env.S3_FORCE_PATH_STYLE === 'true' || false,
-      PUBLIC_BASE_URL: process.env.S3_PUBLIC_BASE_URL, // optional CDN/base URL override
+      BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME || 'my-portfolio-media',
+      ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+      SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     },
   },
 };

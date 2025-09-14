@@ -1,0 +1,83 @@
+meta {
+  name: Create project (JSON format)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/projects
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Portfolio Next.js",
+    "description": "Application de portfolio construite avec Next.js, NestJS et PostgreSQL. Déploiement sur Vercel, CI/CD via GitHub Actions.",
+    "shortDescription": "Portfolio full‑stack Next.js/NestJS",
+    "repositoryLink": "https://github.com/username/portfolio",
+    "projectLink": "https://portfolio.example.com",
+    "isPublished": true,
+    "featured": false,
+    "media": [],
+    "techStack": [
+      {
+        "technology": "Next.js",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+      }
+    ]
+  }
+}
+
+script:post-response {
+  bru.setEnvVar('project_id',res.body.id)
+}
+
+tests {
+  test("should create project successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('id');
+    expect(res.getBody()).to.have.property('name');
+    expect(res.getBody().name).to.equal('Portfolio Next.js');
+  });
+  
+  test("should have empty media array", function() {
+    expect(res.getBody()).to.have.property('media');
+    expect(res.getBody().media).to.be.an('array');
+    expect(res.getBody().media.length).to.equal(0);
+  });
+  
+  test("should have tech stack", function() {
+    expect(res.getBody()).to.have.property('techStack');
+    expect(res.getBody().techStack).to.be.an('array');
+    expect(res.getBody().techStack.length).to.equal(1);
+    expect(res.getBody().techStack[0].technology).to.equal('Next.js');
+  });
+}
+
+docs {
+  # Create Project (Standard JSON Workflow)
+  
+  ✅ **CURRENT WORKFLOW**: Standard JSON format for project creation without media.
+  
+  ## 2-Step Workflow:
+  1. **For projects with media**: 
+     - First: `POST /media/upload` to upload files
+     - Then: Use media IDs in this endpoint's `media` array
+  
+  2. **For projects without media**: 
+     - Direct creation with empty `media` array (this test)
+  
+  ## Changes from previous version:
+  - ✅ Back to JSON format (no more multipart)
+  - ✅ Media field expects array of complete MediaDTO objects or IDs
+  - ✅ Clean separation: media upload ↔ project creation
+  - ✅ Tech stack handling unchanged
+  
+  ## Media Integration:
+  - Upload media first using `/media/upload`
+  - Include media objects with valid IDs in `media` array
+  - System validates media existence before project creation
+  
+  **For projects with media**: See "2-Step Workflow" tests.
+}

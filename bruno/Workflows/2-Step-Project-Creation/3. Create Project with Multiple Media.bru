@@ -1,0 +1,110 @@
+meta {
+  name: 3. Create Project with Multiple Media
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/projects
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Multi-Media Portfolio Project",
+    "description": "Projet portfolio avec plusieurs médias uploadés séparément et référencés par ID",
+    "shortDescription": "Portfolio multi-médias",
+    "isPublished": true,
+    "featured": true,
+    "repositoryLink": "https://github.com/user/multi-media-portfolio",
+    "projectLink": "https://multi-media-portfolio.example.com",
+    "techStack": [
+      {
+        "technology": "Vue.js",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg"
+      },
+      {
+        "technology": "AWS S3",
+        "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg"
+      }
+    ],
+    "media": [
+      "{{uploaded_media_id_1}}",
+      "{{uploaded_media_id_2}}"
+    ]
+  }
+}
+
+script:post-response {
+  bru.setEnvVar('multi_media_project_id', res.body.id);
+}
+
+tests {
+  test("should create project with multiple media", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('id');
+    expect(res.getBody()).to.have.property('name');
+    expect(res.getBody().name).to.equal('Multi-Media Portfolio Project');
+  });
+  
+  test("should have multiple associated media", function() {
+    expect(res.getBody()).to.have.property('media');
+    expect(res.getBody().media).to.be.an('array');
+    expect(res.getBody().media.length).to.equal(2);
+    
+    // Verify first media
+    const media1 = res.getBody().media[0];
+    expect(media1.id).to.equal(bru.getEnvVar('uploaded_media_id_1'));
+    expect(media1.alt).to.equal('Main project screenshot');
+    
+    // Verify second media
+    const media2 = res.getBody().media[1];
+    expect(media2.id).to.equal(bru.getEnvVar('uploaded_media_id_2'));
+    expect(media2.alt).to.equal('Secondary project screenshot');
+  });
+  
+  test("should have correct tech stack", function() {
+    expect(res.getBody()).to.have.property('techStack');
+    expect(res.getBody().techStack).to.be.an('array');
+    expect(res.getBody().techStack.length).to.equal(2);
+  });
+}
+
+docs {
+  # Step 3: Create Project with Multiple Media
+  
+  **Workflow Multi-Media** - Démonstration avancée
+  
+  ## 🎯 Objectif
+  Création d'un projet avec multiple médias pré-uploadés pour démontrer la flexibilité du workflow.
+  
+  ## 📥 Prérequis
+  - ✅ Exécuter "1. Upload Media" d'abord
+  - ✅ Exécuter "1b. Upload Second Media" ensuite
+  - ✅ Variables `uploaded_media_id_1` et `uploaded_media_id_2` définies
+  
+  ## 📤 Ce que fait ce test
+  - ✅ Crée un projet avec références à 2 médias
+  - ✅ Valide l'existence des deux médias
+  - ✅ Démontre la composition flexible
+  - ✅ Associe plusieurs médias en une seule requête
+  
+  ## 🗂️ Payload multi-média
+  ```json
+  {
+    "media": [
+      "id-du-premier-media",
+      "id-du-second-media"  
+    ]
+  }
+  ```
+  
+  ## ✅ Cas d'usage
+  - **Galeries**: Projets avec plusieurs screenshots
+  - **Documentation**: Mélange d'images et documents  
+  - **Portfolios**: Compositions riches et variées
+  - **Réutilisation**: Même média dans plusieurs projets
+  
+  **Note**: Démontre la puissance du workflow 2-étapes pour des compositions complexes.
+}

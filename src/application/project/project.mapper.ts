@@ -11,6 +11,7 @@ import { MediaDB } from 'src/infra/db/media-db/media-db.entity';
 import { TechnoDB } from 'src/infra/db/techno-db/techno-db.entity';
 import { Media, MediaType } from 'src/domain/project/media.entity';
 import { Techno } from 'src/domain/project/techno.entity';
+import * as mediaMapper from '../media/media.mapper';
 
 export function fromDTO(dto: ProjectDTO): Project {
   return new Project(
@@ -24,9 +25,7 @@ export function fromDTO(dto: ProjectDTO): Project {
     dto.featured,
     dto.repositoryLink,
     dto.projectLink,
-    dto.media?.map(
-      (m: MediaDTO) => new Media(m.id, MediaType[m.type], m.url, m.alt),
-    ),
+    dto.media?.map((m: MediaDTO) => mediaMapper.fromDTO(m)),
   );
 }
 
@@ -42,12 +41,7 @@ export function toDTO(entity: Project): ProjectDTO {
     entity.featured,
     entity.repositoryLink,
     entity.projectLink || '',
-    entity.media.map((m: Media) => ({
-      id: m.id,
-      type: m.type,
-      url: m.url,
-      alt: m.alt,
-    })),
+    entity.media.map((m: Media) => mediaMapper.toDTO(m)), // Return full media objects for reading
     entity.techStack.map((t: Techno) => ({
       id: t.id,
       technology: t.technology,
@@ -68,9 +62,7 @@ export function fromCreateDTO(dto: CreateProjectDTO): Project {
     dto.featured,
     dto.repositoryLink,
     dto.projectLink,
-    dto.media?.map(
-      (m: MediaDTO) => new Media(m.id, MediaType[m.type], m.url, m.alt),
-    ),
+    [], // Media will be handled in the service, not here
     // Les technologies seront gérées dans le service, pas ici
     [],
   );
@@ -88,14 +80,7 @@ export function toDB(entity: Project): ProjectDB {
   db.projectLink = entity.projectLink;
   db.createdAt = entity.createdAt;
   db.featured = entity.featured;
-  db.media = entity.media.map((m: Media) => {
-    const row = new MediaDB();
-    row.id = m.id;
-    row.type = m.type as 'PHOTO' | 'VIDEO';
-    row.url = m.url;
-    row.alt = m.alt;
-    return row;
-  });
+  db.media = entity.media.map((m: Media) => mediaMapper.toDB(m));
   db.techStack = entity.techStack.map((t: Techno) => {
     const techRow = new TechnoDB();
     techRow.id = t.id;
@@ -118,9 +103,7 @@ export function fromDB(db: ProjectDB): Project {
     db.featured,
     db.repositoryLink,
     db.projectLink,
-    (db.media || []).map(
-      (m) => new Media(m.id, MediaType[m.type], m.url, m.alt),
-    ),
+    (db.media || []).map((m) => mediaMapper.fromDB(m)),
     (db.techStack || []).map(
       (t) => new Techno(t.id, t.technology, t.iconUrl),
     ),

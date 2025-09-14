@@ -1,0 +1,65 @@
+meta {
+  name: 1. Upload Media
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/media/upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(/Users/robindijoux/Pictures/others/pixelcut-export copie.jpeg)
+  alt: Main project screenshot
+  folder: projects
+}
+
+script:post-response {
+  // Store the uploaded media ID for use in project creation
+  bru.setEnvVar('uploaded_media_id_1', res.body.id);
+  bru.setEnvVar('uploaded_media_url_1', res.body.url);
+  bru.setEnvVar('uploaded_media_type_1', res.body.type);
+  bru.setEnvVar('uploaded_media_alt_1', res.body.alt);
+  bru.setEnvVar('uploaded_media_original_name_1', res.body.originalName);
+  bru.setEnvVar('uploaded_media_file_name_1', res.body.fileName);
+  bru.setEnvVar('uploaded_media_mime_type_1', res.body.mimeType);
+  bru.setEnvVar('uploaded_media_size_1', res.body.size);
+  bru.setEnvVar('uploaded_media_uploaded_at_1', res.body.uploadedAt);
+}
+
+tests {
+  test("should upload media successfully", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.have.property('id');
+    expect(res.body).to.have.property('url');
+    expect(res.body.url).to.include('s3.amazonaws.com');
+    expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
+    expect(res.body.alt).to.equal('Main project screenshot');
+  });
+}
+
+docs {
+  # Step 1: Upload Media to S3
+  
+  **Workflow 2-Step** - Étape 1 sur 2
+  
+  ## 🎯 Objectif
+  Upload d'un fichier média sur S3 et récupération de son ID pour la création de projet.
+  
+  ## 📤 Ce que fait ce test
+  - ✅ Upload du fichier vers S3
+  - ✅ Sauvegarde des métadonnées en base
+  - ✅ Récupération de l'ID média pour l'étape suivante
+  - ✅ Stockage des variables d'environnement
+  
+  ## 📋 Variables créées
+  - `uploaded_media_id_1` - **REQUIS** pour l'étape 2
+  - Variables supplémentaires pour référence
+  
+  ## ➡️ Étape suivante
+  Utiliser "2. Create Project with Media ID" avec l'ID récupéré.
+  
+  **Note**: Modifiez le chemin du fichier selon votre système.
+}

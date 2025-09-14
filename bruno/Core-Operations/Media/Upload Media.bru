@@ -1,0 +1,53 @@
+meta {
+  name: Upload media file (Standalone)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/media/upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(test-image.jpg)
+  alt: Test image for portfolio
+  folder: test-uploads
+}
+
+tests {
+  test("should upload media successfully", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.have.property('id');
+    expect(res.body).to.have.property('url');
+    expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
+    expect(res.body.originalName).to.exist;
+    expect(res.body.size).to.be.a('number');
+  });
+}
+
+docs {
+  # Upload Media (Standalone - S3)
+  
+  ⚡ **WORKFLOW**: Upload direct de média sur S3 sans association à un projet.
+  
+  ## Cas d'usage:
+  - ✅ Média standalone (pas lié à un projet)
+  - ✅ Upload en avance pour usage ultérieur
+  - ✅ Gestion séparée des médias
+  - ✅ Stockage S3 avec toutes les fonctionnalités
+  
+  ## vs. Workflow Unifié:
+  - **Cet endpoint**: Média indépendant, non lié à un projet
+  - **Workflow unifié**: Média automatiquement lié au projet lors de la création
+  
+  ## Fonctionnalités:
+  - Stockage S3 sécurisé
+  - Validation avancée des types
+  - Métadonnées complètes
+  - Signed URLs disponibles
+  - Stats et gestion CRUD
+  
+  **Note**: Remplacez le chemin du fichier par un fichier réel.
+}

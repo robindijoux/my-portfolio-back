@@ -1,0 +1,29 @@
+meta {
+  name: Get all media
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/media
+  body: none
+  auth: none
+}
+
+tests {
+  test("should get all media", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an('array');
+    
+    if (res.body.length > 0) {
+      const media = res.body[0];
+      expect(media).to.have.property('id');
+      expect(media).to.have.property('url');
+      expect(media).to.have.property('type');
+      expect(media).to.have.property('originalName');
+      expect(media).to.have.property('mimeType');
+      expect(media).to.have.property('size');
+      expect(media).to.have.property('uploadedAt');
+    }
+  });
+}

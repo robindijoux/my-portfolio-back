@@ -1,0 +1,26 @@
+meta {
+  name: Generate signed URL
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/media/{{mediaId}}/signed-url?expiresIn=3600
+  body: none
+  auth: none
+}
+
+vars {
+  mediaId: replace-with-actual-media-id
+}
+
+tests {
+  test("should generate signed URL", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('signedUrl');
+    expect(res.body).to.have.property('expiresAt');
+    expect(res.body.signedUrl).to.be.a('string');
+    expect(res.body.signedUrl).to.include('amazonaws.com');
+    expect(res.body.expiresAt).to.be.a('string');
+  });
+}

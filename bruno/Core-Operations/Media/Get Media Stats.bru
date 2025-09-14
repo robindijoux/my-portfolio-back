@@ -1,0 +1,24 @@
+meta {
+  name: Get media statistics
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/media/stats/overview
+  body: none
+  auth: none
+}
+
+tests {
+  test("should get media statistics", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('totalCount');
+    expect(res.body).to.have.property('totalSize');
+    expect(res.body).to.have.property('totalSizeFormatted');
+    expect(res.body).to.have.property('byType');
+    expect(res.body.totalCount).to.be.a('number');
+    expect(res.body.totalSize).to.be.a('number');
+    expect(res.body.byType).to.be.an('object');
+  });
+}
