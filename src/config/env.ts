@@ -18,5 +18,10 @@ export const env = {
       ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
       SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     },
+    COGNITO: {
+      USER_POOL_ID: process.env.AWS_COGNITO_USER_POOL_ID,
+      CLIENT_ID: process.env.AWS_COGNITO_CLIENT_ID,
+      REGION: process.env.AWS_REGION || 'eu-west-3',
+    },
   },
 };

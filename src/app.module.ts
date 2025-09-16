@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProjectModule } from './module/project/project.module';
 import { TechnoModule } from './module/techno/techno.module';
 import { MediaModule } from './module/media/media.module';
+import { AuthModule } from './module/auth/auth.module';
 import { HealthModule } from './presentation/health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config/env';
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
     ProjectModule,
     TechnoModule,
     MediaModule,
+    AuthModule,
     HealthModule,
     TypeOrmModule.forRoot({
       type: env.DATABASE.TYPE,

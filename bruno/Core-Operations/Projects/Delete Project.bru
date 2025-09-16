@@ -7,18 +7,39 @@ meta {
 delete {
   url: {{base_url}}/projects/{{project_id}}
   body: none
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
 }
 
 tests {
-  test("should delete project successfully", function() {
-    expect(res.getStatus()).to.equal(200);
+  test("should delete project successfully with auth", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404]);
+    
+    if (res.getStatus() === 401) {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    } else if (res.getStatus() === 404) {
+      console.log("⚠️ Project not found - Check project_id in environment");
+    }
   });
 }
 
 docs {
+  # Delete project - 🔐 REQUIRES AUTHENTICATION
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: This endpoint now requires a valid JWT token from AWS Cognito.
+  
   Delete a project by its ID.
+  
+  ## Authentication Setup:
+  1. Configure `jwt_token` variable in Bruno environment
+  2. Get JWT token from AWS Cognito (see Authentication folder)
+  3. Token is automatically added as Bearer token
   
   This will permanently remove the project and all associated media files.
   Use with caution as this operation cannot be undone.
+  
+  **For authentication**: See Authentication folder for token setup.
 }

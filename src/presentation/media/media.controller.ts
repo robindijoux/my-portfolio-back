@@ -12,6 +12,7 @@ import {
   ParseUUIDPipe,
   Query,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -22,10 +23,14 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { MediaService } from '../../application/media/media.service';
 import { MediaDTO, MediaUploadDto } from '../project/project.dto';
 import * as mediaMapper from '../../application/media/media.mapper';
+import { JwtAuthGuard } from '../../infra/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../infra/auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../infra/auth/models/authenticated-user.model';
 
 @ApiTags('Media')
 @Controller('media')
@@ -33,7 +38,9 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post('upload')
-  @ApiOperation({ summary: 'Upload a media file' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload a media file - Requires authentication' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Media file upload',
@@ -48,10 +55,15 @@ export class MediaController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid file or file too large',
   })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadMedia(
     @UploadedFile() file: Express.Multer.File,
     @Body() uploadDto: MediaUploadDto,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<MediaDTO> {
     if (!file) {
       throw new BadRequestException('No file provided');
@@ -114,7 +126,9 @@ export class MediaController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete media by ID' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete media by ID - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Media ID' })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
@@ -124,12 +138,18 @@ export class MediaController {
     status: HttpStatus.NOT_FOUND,
     description: 'Media not found',
   })
-  async deleteMedia(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
+  async deleteMedia(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser): Promise<void> {
     await this.mediaService.deleteMedia(id);
   }
 
   @Put(':id/metadata')
-  @ApiOperation({ summary: 'Update media metadata' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update media metadata - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Media ID' })
   @ApiBody({
     description: 'Media metadata update',
@@ -149,9 +169,14 @@ export class MediaController {
     status: HttpStatus.NOT_FOUND,
     description: 'Media not found',
   })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
   async updateMediaMetadata(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateData: { alt?: string },
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<MediaDTO> {
     const updatedMedia = await this.mediaService.updateMediaMetadata(id, updateData);
     return mediaMapper.toDTO(updatedMedia);

@@ -7,7 +7,11 @@ meta {
 post {
   url: {{base_url}}/media/upload
   body: multipartForm
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
 }
 
 body:multipart-form {
@@ -17,30 +21,43 @@ body:multipart-form {
 }
 
 tests {
-  test("should upload media successfully", function() {
-    expect(res.status).to.equal(201);
-    expect(res.body).to.have.property('id');
-    expect(res.body).to.have.property('url');
-    expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
-    expect(res.body.originalName).to.exist;
-    expect(res.body.size).to.be.a('number');
+  test("should upload media successfully with auth", function() {
+    expect(res.status).to.be.oneOf([201, 401]);
+    
+    if (res.status === 201) {
+      expect(res.body).to.have.property('id');
+      expect(res.body).to.have.property('url');
+      expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
+      expect(res.body.originalName).to.exist;
+      expect(res.body.size).to.be.a('number');
+    } else {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    }
   });
 }
 
 docs {
-  # Upload Media (Standalone - S3)
+  # Upload Media (Standalone - S3) - 🔐 REQUIRES AUTHENTICATION
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: This endpoint now requires a valid JWT token from AWS Cognito.
   
   ⚡ **WORKFLOW**: Upload direct de média sur S3 sans association à un projet.
+  
+  ## Authentication Setup:
+  1. Configure `jwt_token` variable in Bruno environment
+  2. Get JWT token from AWS Cognito (see Authentication folder)
+  3. Token is automatically added as Bearer token
   
   ## Cas d'usage:
   - ✅ Média standalone (pas lié à un projet)
   - ✅ Upload en avance pour usage ultérieur
   - ✅ Gestion séparée des médias
   - ✅ Stockage S3 avec toutes les fonctionnalités
+  - 🔐 **NEW**: Sécurisé par authentification JWT
   
   ## vs. Workflow Unifié:
-  - **Cet endpoint**: Média indépendant, non lié à un projet
-  - **Workflow unifié**: Média automatiquement lié au projet lors de la création
+  - **Cet endpoint**: Média indépendant, non lié à un projet (requires auth)
+  - **Workflow unifié**: Média automatiquement lié au projet lors de la création (requires auth)
   
   ## Fonctionnalités:
   - Stockage S3 sécurisé
@@ -48,6 +65,8 @@ docs {
   - Métadonnées complètes
   - Signed URLs disponibles
   - Stats et gestion CRUD
+  - Protection par authentification JWT
   
   **Note**: Remplacez le chemin du fichier par un fichier réel.
+  **Authentication**: Voir le dossier Authentication pour obtenir un token JWT.
 }

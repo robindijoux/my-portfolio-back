@@ -7,6 +7,7 @@ import {
   Logger,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -14,9 +15,13 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ProjectService } from 'src/application/project/project.service';
 import { CreateProjectDTO, TechnoDTO, AddMediaToProjectDTO } from './project.dto';
+import { JwtAuthGuard } from '../../infra/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../infra/auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../infra/auth/models/authenticated-user.model';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -35,9 +40,11 @@ export class ProjectController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ 
     summary: 'Create a new project with media IDs',
-    description: 'Create a project using IDs of previously uploaded media files. Upload media files first using POST /media/upload, then use their IDs here.'
+    description: 'Create a project using IDs of previously uploaded media files. Upload media files first using POST /media/upload, then use their IDs here. Requires authentication.'
   })
   @ApiBody({
     description: 'Project data with media IDs',
@@ -45,16 +52,20 @@ export class ProjectController {
   })
   @ApiResponse({ status: 201, description: 'Project created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid data or media not found' })
-  async createProject(@Body() projectData: CreateProjectDTO) {
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async createProject(@Body() projectData: CreateProjectDTO, @CurrentUser() user: AuthenticatedUser) {
     return this.projectService.createWithMediaIds(projectData);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a project' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a project - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Project ID to delete' })
   @ApiResponse({ status: 200, description: 'Project deleted successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async deleteProject(@Param('id') id: string) {
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async deleteProject(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.projectService.delete(id);
   }
 
@@ -68,9 +79,11 @@ export class ProjectController {
   }
 
   @Post(':id/media')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Associate existing media with a project',
-    description: 'Associate a previously uploaded media file with the specified project using its ID. Upload media first using POST /media/upload.'
+    summary: 'Associate existing media with a project - Requires authentication',
+    description: 'Associate a previously uploaded media file with the specified project using its ID. Upload media first using POST /media/upload. Requires authentication.'
   })
   @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiBody({
@@ -101,38 +114,49 @@ export class ProjectController {
   })
   @ApiResponse({ status: 400, description: 'Invalid media ID' })
   @ApiResponse({ status: 404, description: 'Project or media not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
   async addMediaToProject(
     @Param('id') projectId: string,
     @Body() addMediaDto: AddMediaToProjectDTO,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.projectService.addMediaById(projectId, addMediaDto.mediaId);
   }
 
   @Delete(':id/media/:mediaId')
-  @ApiOperation({ summary: 'Remove media from a project' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove media from a project - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiResponse({ status: 200, description: 'Media removed successfully' })
   @ApiResponse({ status: 404, description: 'Project or media not found' })
-  async removeMedia(@Param('id') id: string, @Param('mediaId') mediaId: string) {
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async removeMedia(@Param('id') id: string, @Param('mediaId') mediaId: string, @CurrentUser() user: AuthenticatedUser) {
     return this.projectService.removeMedia(id, mediaId);
   }
 
   @Post(':id/techno')
-  @ApiOperation({ summary: 'Add technology to a project' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add technology to a project - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiResponse({ status: 201, description: 'Technology added successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async addTechnology(@Param('id') id: string, @Body() techno: TechnoDTO) {
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async addTechnology(@Param('id') id: string, @Body() techno: TechnoDTO, @CurrentUser() user: AuthenticatedUser) {
     return this.projectService.addTechnology(id, techno);
   }
 
   @Delete(':id/techno/:technoId')
-  @ApiOperation({ summary: 'Remove technology from a project' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove technology from a project - Requires authentication' })
   @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiParam({ name: 'technoId', description: 'Technology ID to remove' })
   @ApiResponse({ status: 200, description: 'Technology removed successfully' })
   @ApiResponse({ status: 404, description: 'Project or technology not found' })
-  async removeTechnology(@Param('id') id: string, @Param('technoId') technoId: string) {
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing JWT token' })
+  async removeTechnology(@Param('id') id: string, @Param('technoId') technoId: string, @CurrentUser() user: AuthenticatedUser) {
     return this.projectService.removeTechnology(id, technoId);
   }
 }

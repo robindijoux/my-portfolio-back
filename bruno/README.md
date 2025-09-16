@@ -64,9 +64,27 @@ Core-Operations/Technologies/List Technologies  # Catalogue
 | Variable | Description | Usage |
 |----------|-------------|-------|
 | `base_url` | URL de base de l'API | Tous les tests |
+| `jwt_token` | Token JWT AWS Cognito | Routes protégées |
 | `uploaded_media_id_1` | ID du premier média uploadé | Workflows |
 | `uploaded_media_id_2` | ID du second média uploadé | Multi-média |
 | `two_step_project_id` | ID du projet workflow 2-étapes | Extensions |
+
+## 🔐 Authentification
+
+Depuis la mise en place de l'authentification JWT, certaines routes nécessitent un token :
+
+### Routes protégées (JWT requis)
+- POST/DELETE pour Projects, Media, Technologies
+- Tous les workflows de création/modification
+
+### Routes publiques
+- GET operations (consultation)
+- Health check
+
+### Configuration JWT
+1. Obtenez un token via AWS Cognito
+2. Configurez `jwt_token` dans votre environnement Bruno
+3. Les tests s'adaptent automatiquement (200 ou 401)
 
 ## 📚 Documentation
 

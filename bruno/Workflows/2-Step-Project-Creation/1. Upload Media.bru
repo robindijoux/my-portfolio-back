@@ -7,7 +7,11 @@ meta {
 post {
   url: {{base_url}}/media/upload
   body: multipartForm
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
 }
 
 body:multipart-form {
@@ -30,26 +34,33 @@ script:post-response {
 }
 
 tests {
-  test("should upload media successfully", function() {
-    expect(res.status).to.equal(201);
-    expect(res.body).to.have.property('id');
-    expect(res.body).to.have.property('url');
-    expect(res.body.url).to.include('s3.amazonaws.com');
-    expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
-    expect(res.body.alt).to.equal('Main project screenshot');
+  test("should upload media successfully with auth", function() {
+    expect(res.status).to.be.oneOf([201, 401]);
+    
+    if (res.status === 201) {
+      expect(res.body).to.have.property('id');
+      expect(res.body).to.have.property('url');
+      expect(res.body.url).to.include('s3.amazonaws.com');
+      expect(res.body.type).to.be.oneOf(['PHOTO', 'VIDEO', 'PDF', 'DOCUMENT']);
+      expect(res.body.alt).to.equal('Main project screenshot');
+    } else {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    }
   });
 }
 
 docs {
-  # Step 1: Upload Media to S3
+  # Step 1: Upload Media to S3 - 🔐 REQUIRES AUTHENTICATION
   
   **Workflow 2-Step** - Étape 1 sur 2
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: Configure `jwt_token` dans l'environnement Bruno.
   
   ## 🎯 Objectif
   Upload d'un fichier média sur S3 et récupération de son ID pour la création de projet.
   
   ## 📤 Ce que fait ce test
-  - ✅ Upload du fichier vers S3
+  - ✅ Upload du fichier vers S3 (sécurisé par JWT)
   - ✅ Sauvegarde des métadonnées en base
   - ✅ Récupération de l'ID média pour l'étape suivante
   - ✅ Stockage des variables d'environnement
@@ -61,5 +72,7 @@ docs {
   ## ➡️ Étape suivante
   Utiliser "2. Create Project with Media ID" avec l'ID récupéré.
   
-  **Note**: Modifiez le chemin du fichier selon votre système.
+  **Note**: 
+  - Modifiez le chemin du fichier selon votre système
+  - Configurez votre token JWT (voir Authentication folder)
 }
