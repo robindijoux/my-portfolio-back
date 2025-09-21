@@ -15,7 +15,7 @@ export class TimelineEventDBRepository implements ITimelineEventRepository {
 
   async findAll(): Promise<TimelineEvent[]> {
     const rows = await this.timelineEventRepository.find({
-      order: { year: 'DESC', createdAt: 'DESC' },
+      order: { timestamp: 'DESC', createdAt: 'DESC' },
     });
     return rows.map(fromDB);
   }
@@ -28,7 +28,7 @@ export class TimelineEventDBRepository implements ITimelineEventRepository {
   async findByType(type: string): Promise<TimelineEvent[]> {
     const rows = await this.timelineEventRepository.find({
       where: { type: type as 'education' | 'achievement' | 'work' },
-      order: { year: 'DESC', createdAt: 'DESC' },
+      order: { timestamp: 'DESC', createdAt: 'DESC' },
     });
     return rows.map(fromDB);
   }

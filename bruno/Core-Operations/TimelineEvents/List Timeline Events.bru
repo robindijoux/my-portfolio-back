@@ -20,7 +20,8 @@ tests {
     if (res.getBody().length > 0) {
       const event = res.getBody()[0];
       expect(event).to.have.property('id');
-      expect(event).to.have.property('year');
+      expect(event).to.have.property('timestamp');
+      expect(event.timestamp).to.be.a('number');
       expect(event).to.have.property('title');
       expect(event).to.have.property('description');
       expect(event).to.have.property('type');
@@ -36,14 +37,14 @@ docs {
   
   ✅ **PUBLIC ENDPOINT**: No authentication required
   
-  Returns all timeline events sorted by year (descending) and creation date.
+  Returns all timeline events sorted by timestamp (descending) and creation date.
   
   ## Response Format:
   ```json
   [
     {
       "id": "uuid",
-      "year": "2023",
+      "timestamp": 1687689000000,
       "title": "Bachelor Degree",
       "description": "Completed Bachelor of Science in Computer Science",
       "type": "education",

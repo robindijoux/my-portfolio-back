@@ -2,7 +2,7 @@ export type TimelineEventType = 'education' | 'achievement' | 'work';
 
 export class TimelineEvent {
   id: string;
-  year: string;
+  timestamp: number;
   title: string;
   description: string;
   type: TimelineEventType;
@@ -12,7 +12,7 @@ export class TimelineEvent {
 
   constructor(
     id: string,
-    year: string,
+    timestamp: number,
     title: string,
     description: string,
     type: TimelineEventType,
@@ -21,7 +21,7 @@ export class TimelineEvent {
     location?: string,
   ) {
     this.id = id;
-    this.year = year;
+    this.timestamp = timestamp;
     this.title = title;
     this.description = description;
     this.type = type;

@@ -16,7 +16,7 @@ auth:bearer {
 
 body:json {
   {
-    "year": "2024",
+    "timestamp": 1718449800000,
     "title": "Senior Full-Stack Developer Promotion",
     "description": "Promoted to Senior Full-Stack Developer role after successfully leading the migration of legacy systems to modern microservices architecture. Achieved 40% performance improvement and 60% reduction in deployment time.",
     "type": "achievement",
@@ -40,7 +40,7 @@ tests {
       expect(res.getBody()).to.have.property('id');
       expect(res.getBody().title).to.equal("Senior Full-Stack Developer Promotion");
       expect(res.getBody().type).to.equal('achievement');
-      expect(res.getBody().year).to.equal('2024');
+      expect(res.getBody().timestamp).to.be.a('number');
       console.log(`✅ Achievement created: ${res.getBody().title}`);
     } else {
       console.log("⚠️ Authentication failed - Check jwt_token in environment");

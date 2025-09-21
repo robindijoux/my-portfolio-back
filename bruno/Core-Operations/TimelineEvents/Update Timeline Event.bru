@@ -39,12 +39,12 @@ tests {
   
   test("should preserve unchanged fields when authenticated", function() {
     if (res.getStatus() === 200) {
-      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('timestamp');
+      expect(res.getBody().timestamp).to.be.a('number');
       expect(res.getBody()).to.have.property('type');
       expect(res.getBody()).to.have.property('image');
       expect(res.getBody()).to.have.property('createdAt');
       // These fields should remain unchanged
-      expect(res.getBody().year).to.equal('2023');
       expect(res.getBody().type).to.equal('education');
     }
   });
@@ -74,12 +74,12 @@ docs {
   ## Request Body (Partial Update):
   ```json
   {
-    "year": "2024",                    // Optional
-    "title": "Updated Title",          // Optional
-    "description": "Updated desc",     // Optional
-    "type": "achievement",             // Optional: "education" | "achievement" | "work"
-    "location": "Updated Location",    // Optional
-    "image": "https://new-image.jpg"   // Optional
+    "timestamp": 1710518400000,                  // Optional (Unix timestamp)
+    "title": "Updated Title",                    // Optional
+    "description": "Updated desc",               // Optional
+    "type": "achievement",                       // Optional: "education" | "achievement" | "work"
+    "location": "Updated Location",              // Optional
+    "image": "https://new-image.jpg"             // Optional
   }
   ```
   

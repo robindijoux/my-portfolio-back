@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTimelineEventDTO {
   @ApiProperty({ 
-    description: 'Year of the timeline event',
-    example: '2023'
+    description: 'Timestamp of the timeline event (Unix timestamp in milliseconds)',
+    example: 1687689000000
   })
-  year: string;
+  timestamp: number;
 
   @ApiProperty({ 
     description: 'Title of the timeline event',
@@ -42,11 +42,11 @@ export class CreateTimelineEventDTO {
 
 export class UpdateTimelineEventDTO {
   @ApiProperty({ 
-    description: 'Year of the timeline event',
+    description: 'Timestamp of the timeline event (Unix timestamp in milliseconds)',
     required: false,
-    example: '2023'
+    example: 1687689000000
   })
-  year?: string;
+  timestamp?: number;
 
   @ApiProperty({ 
     description: 'Title of the timeline event',
@@ -93,10 +93,10 @@ export class TimelineEventDTO {
   id: string;
 
   @ApiProperty({ 
-    description: 'Year of the timeline event',
-    example: '2023'
+    description: 'Timestamp of the timeline event (Unix timestamp in milliseconds)',
+    example: 1687689000000
   })
-  year: string;
+  timestamp: number;
 
   @ApiProperty({ 
     description: 'Title of the timeline event',
@@ -138,7 +138,7 @@ export class TimelineEventDTO {
 
   constructor(
     id: string,
-    year: string,
+    timestamp: number,
     title: string,
     description: string,
     type: 'education' | 'achievement' | 'work',
@@ -147,7 +147,7 @@ export class TimelineEventDTO {
     location?: string,
   ) {
     this.id = id;
-    this.year = year;
+    this.timestamp = timestamp;
     this.title = title;
     this.description = description;
     this.type = type;

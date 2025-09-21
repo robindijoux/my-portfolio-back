@@ -16,7 +16,7 @@ auth:bearer {
 
 body:json {
   {
-    "year": "2023",
+    "timestamp": 1687689000000,
     "title": "Master's Degree in Computer Science",
     "description": "Completed Master of Science in Computer Science with specialization in Software Engineering and AI. Graduated summa cum laude with a thesis on machine learning applications in web development.",
     "type": "education",
@@ -40,7 +40,7 @@ tests {
       expect(res.getBody()).to.have.property('title');
       expect(res.getBody().title).to.equal("Master's Degree in Computer Science");
       expect(res.getBody().type).to.equal('education');
-      expect(res.getBody().year).to.equal('2023');
+      expect(res.getBody().timestamp).to.be.a('number');
     } else {
       console.log("⚠️ Authentication failed - Update jwt_token in environment");
     }
@@ -49,7 +49,8 @@ tests {
   test("should have all required properties when authenticated", function() {
     if (res.getStatus() === 201) {
       expect(res.getBody()).to.have.property('id');
-      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('timestamp');
+      expect(res.getBody().timestamp).to.be.a('number');
       expect(res.getBody()).to.have.property('title');
       expect(res.getBody()).to.have.property('description');
       expect(res.getBody()).to.have.property('type');
@@ -79,7 +80,7 @@ docs {
   ## Request Body:
   ```json
   {
-    "year": "2023",
+    "timestamp": 1687689000000,
     "title": "Achievement Title",
     "description": "Detailed description of the achievement",
     "type": "education",  // "education" | "achievement" | "work"

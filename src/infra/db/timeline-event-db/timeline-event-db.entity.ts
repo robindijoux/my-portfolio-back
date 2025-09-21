@@ -5,8 +5,8 @@ export class TimelineEventDB {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 4 })
-  year: string;
+  @Column('timestamp')
+  timestamp: Date;
 
   @Column({ length: 255 })
   title: string;

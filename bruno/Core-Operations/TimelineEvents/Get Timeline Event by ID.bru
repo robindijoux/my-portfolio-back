@@ -24,7 +24,8 @@ tests {
   
   test("should have all timeline event properties when found", function() {
     if (res.getStatus() === 200) {
-      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('timestamp');
+      expect(res.getBody().timestamp).to.be.a('number');
       expect(res.getBody()).to.have.property('title');
       expect(res.getBody()).to.have.property('description');
       expect(res.getBody()).to.have.property('type');

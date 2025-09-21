@@ -11,7 +11,7 @@ describe('TimelineEventService', () => {
 
   const mockTimelineEvent = new TimelineEvent(
     '123e4567-e89b-12d3-a456-426614174000',
-    '2023',
+    1687689000000, // Unix timestamp
     'Bachelor Degree',
     'Completed Bachelor of Science in Computer Science',
     'education',
@@ -21,7 +21,7 @@ describe('TimelineEventService', () => {
   );
 
   const mockCreateDto: CreateTimelineEventDTO = {
-    year: '2023',
+    timestamp: 1687689000000, // Unix timestamp
     title: 'Bachelor Degree',
     description: 'Completed Bachelor of Science in Computer Science',
     type: 'education',
@@ -118,7 +118,7 @@ describe('TimelineEventService', () => {
     it('should update and return a timeline event', async () => {
       const updatedTimelineEvent = new TimelineEvent(
         mockTimelineEvent.id,
-        mockTimelineEvent.year,
+        mockTimelineEvent.timestamp,
         'Updated Bachelor Degree',
         'Updated description',
         mockTimelineEvent.type,
