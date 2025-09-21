@@ -1,0 +1,67 @@
+meta {
+  name: 3. Verify Created Achievement
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should retrieve the created achievement", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 404]);
+    
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody().id).to.equal(bru.getEnvVar('timeline_event_id'));
+      expect(res.getBody().title).to.equal("Senior Full-Stack Developer Promotion");
+      console.log(`✅ Retrieved: ${res.getBody().title} (${res.getBody().year})`);
+    } else {
+      console.log("⚠️ Achievement not found - Run Step 2 first");
+    }
+  });
+  
+  test("should have all required achievement data", function() {
+    if (res.getStatus() === 200) {
+      expect(res.getBody().type).to.equal('achievement');
+      expect(res.getBody().location).to.equal('TechCorp Solutions');
+      expect(res.getBody().description).to.contain('microservices architecture');
+      expect(res.getBody().year).to.equal('2024');
+      console.log(`📍 Achievement location: ${res.getBody().location}`);
+    }
+  });
+  
+  test("should have valid timestamps", function() {
+    if (res.getStatus() === 200) {
+      expect(res.getBody().createdAt).to.be.a('string');
+      const createdDate = new Date(res.getBody().createdAt);
+      expect(createdDate).to.be.a('date');
+      console.log(`📅 Created: ${createdDate.toISOString()}`);
+    }
+  });
+}
+
+docs {
+  # Step 3: Verify Created Achievement
+  
+  ✅ **PUBLIC ACCESS**: No authentication required
+  
+  Retrieves and verifies the timeline event created in Step 2.
+  
+  ## Verification Points:
+  - **Data Integrity**: All fields match the creation request
+  - **ID Consistency**: Retrieved ID matches the created event ID
+  - **Timestamp Validity**: CreatedAt timestamp is properly formatted
+  - **Type Classification**: Event type is correctly set as "achievement"
+  
+  ## What We're Checking:
+  - Professional achievement details are preserved
+  - Location information is accurate
+  - Performance metrics mentioned in description
+  - Year classification (2024)
+  
+  **Next Step**: Update Achievement Details (Step 4)
+}

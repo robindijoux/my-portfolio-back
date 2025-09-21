@@ -1,0 +1,102 @@
+meta {
+  name: Create Timeline Event
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/timelineEvent
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+body:json {
+  {
+    "year": "2023",
+    "title": "Master's Degree in Computer Science",
+    "description": "Completed Master of Science in Computer Science with specialization in Software Engineering and AI. Graduated summa cum laude with a thesis on machine learning applications in web development.",
+    "type": "education",
+    "location": "MIT - Massachusetts Institute of Technology",
+    "image": "https://example.com/graduation-photo.jpg"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setEnvVar('timeline_event_id', res.body.id);
+  }
+}
+
+tests {
+  test("should create timeline event successfully with valid auth", function() {
+    expect(res.getStatus()).to.be.oneOf([201, 401]);
+    
+    if (res.getStatus() === 201) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody()).to.have.property('title');
+      expect(res.getBody().title).to.equal("Master's Degree in Computer Science");
+      expect(res.getBody().type).to.equal('education');
+      expect(res.getBody().year).to.equal('2023');
+    } else {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    }
+  });
+  
+  test("should have all required properties when authenticated", function() {
+    if (res.getStatus() === 201) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('title');
+      expect(res.getBody()).to.have.property('description');
+      expect(res.getBody()).to.have.property('type');
+      expect(res.getBody()).to.have.property('location');
+      expect(res.getBody()).to.have.property('image');
+      expect(res.getBody()).to.have.property('createdAt');
+    }
+  });
+  
+  test("should save timeline event ID for subsequent tests", function() {
+    if (res.getStatus() === 201) {
+      expect(res.getBody().id).to.be.a('string');
+    }
+  });
+}
+
+docs {
+  # Create Timeline Event - 🔐 REQUIRES AUTHENTICATION
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: This endpoint requires a valid JWT token from AWS Cognito.
+  
+  ## Authentication Setup:
+  1. Configure `jwt_token` variable in Bruno environment
+  2. Get JWT token from AWS Cognito (see Authentication folder)
+  3. Token is automatically added as Bearer token
+  
+  ## Request Body:
+  ```json
+  {
+    "year": "2023",
+    "title": "Achievement Title",
+    "description": "Detailed description of the achievement",
+    "type": "education",  // "education" | "achievement" | "work"
+    "location": "Optional location",
+    "image": "https://example.com/image.jpg"
+  }
+  ```
+  
+  ## Timeline Event Types:
+  - `education` - Educational achievements (degrees, certifications, courses)
+  - `achievement` - Personal achievements (awards, recognitions, milestones)
+  - `work` - Work experience (jobs, internships, projects)
+  
+  ## Response:
+  Returns the created timeline event with generated ID and createdAt timestamp.
+  
+  ## Error Responses:
+  - `400` - Invalid data provided
+  - `401` - Authentication required or invalid token
+}

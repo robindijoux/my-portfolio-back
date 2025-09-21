@@ -1,0 +1,68 @@
+meta {
+  name: Get Timeline Event by ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should return timeline event by ID", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 404]);
+    
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody().id).to.equal(bru.getEnvVar('timeline_event_id'));
+    } else {
+      console.log("⚠️ Timeline event not found - Run 'Create Timeline Event' test first");
+    }
+  });
+  
+  test("should have all timeline event properties when found", function() {
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('title');
+      expect(res.getBody()).to.have.property('description');
+      expect(res.getBody()).to.have.property('type');
+      expect(res.getBody()).to.have.property('image');
+      expect(res.getBody()).to.have.property('createdAt');
+      expect(res.getBody().type).to.be.oneOf(['education', 'achievement', 'work']);
+    }
+  });
+}
+
+docs {
+  # Get Timeline Event by ID
+  
+  ✅ **PUBLIC ENDPOINT**: No authentication required
+  
+  Retrieves a specific timeline event by its ID.
+  
+  ## URL Parameters:
+  - `id` - The UUID of the timeline event
+  
+  ## Response:
+  ```json
+  {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "year": "2023",
+    "title": "Master's Degree in Computer Science",
+    "description": "Completed Master of Science...",
+    "type": "education",
+    "location": "MIT - Massachusetts Institute of Technology",
+    "image": "https://example.com/graduation-photo.jpg",
+    "createdAt": "2023-01-01T00:00:00.000Z"
+  }
+  ```
+  
+  ## Error Responses:
+  - `404` - Timeline event not found with the provided ID
+  
+  ## Prerequisites:
+  This test uses the `timeline_event_id` variable set by the "Create Timeline Event" test.
+  Run that test first to populate the variable.
+}

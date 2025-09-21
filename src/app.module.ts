@@ -3,6 +3,7 @@ import { ProjectModule } from './module/project/project.module';
 import { TechnoModule } from './module/techno/techno.module';
 import { MediaModule } from './module/media/media.module';
 import { AuthModule } from './module/auth/auth.module';
+import { TimelineEventModule } from './module/timeline-event/timeline-event.module';
 import { HealthModule } from './presentation/health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config/env';
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     TechnoModule,
     MediaModule,
     AuthModule,
+    TimelineEventModule,
     HealthModule,
     TypeOrmModule.forRoot({
       type: env.DATABASE.TYPE,

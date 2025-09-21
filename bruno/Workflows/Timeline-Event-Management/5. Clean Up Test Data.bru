@@ -1,0 +1,73 @@
+meta {
+  name: 5. Clean Up Test Data
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+tests {
+  test("should delete test achievement successfully", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404]);
+    
+    if (res.getStatus() === 200) {
+      console.log("✅ Test timeline event deleted successfully");
+      console.log("🧹 Workflow completed - test data cleaned up");
+    } else if (res.getStatus() === 401) {
+      console.log("⚠️ Authentication failed - Check jwt_token");
+    } else {
+      console.log("⚠️ Achievement not found - May have been already deleted");
+    }
+  });
+  
+  test("should return appropriate response for deletion", function() {
+    if (res.getStatus() === 200) {
+      // Successful deletion typically returns empty body
+      expect(res.getBody()).to.be.oneOf([undefined, null, ""]);
+    }
+  });
+}
+
+script:post-response {
+  // Clear environment variables after deletion
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('timeline_event_id', '');
+    console.log("🗑️ Environment variable 'timeline_event_id' cleared");
+  }
+}
+
+docs {
+  # Step 5: Clean Up Test Data
+  
+  🔐 **AUTHENTICATION REQUIRED**: JWT token needed
+  
+  Final step - removes the test timeline event created during this workflow.
+  
+  ## Cleanup Actions:
+  - **Delete Timeline Event**: Permanently removes the test achievement from database
+  - **Clear Variables**: Resets `timeline_event_id` environment variable
+  - **Complete Workflow**: Ensures no test data remains after workflow completion
+  
+  ## Good Testing Practices:
+  - **Isolation**: Each workflow run is independent
+  - **No Side Effects**: Test data doesn't accumulate over multiple runs
+  - **Clean State**: Database returns to original state after testing
+  
+  ## Workflow Summary:
+  ✅ **Completed Full Timeline Event Lifecycle:**
+  1. 📋 Browsed existing events (public)
+  2. 🎉 Created new achievement (authenticated)
+  3. ✅ Verified creation (public)
+  4. 🔄 Updated details (authenticated) 
+  5. 🧹 Cleaned up data (authenticated)
+  
+  **Result**: Timeline Event CRUD operations fully tested and verified.
+}

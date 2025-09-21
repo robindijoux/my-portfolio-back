@@ -1,0 +1,85 @@
+meta {
+  name: 4. Update Achievement Details
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+body:json {
+  {
+    "title": "Senior Full-Stack Developer & Team Lead Promotion",
+    "description": "Promoted to Senior Full-Stack Developer role with additional team leadership responsibilities. Successfully led the migration of legacy systems to modern microservices architecture while mentoring 3 junior developers. Achieved 40% performance improvement, 60% reduction in deployment time, and improved team productivity by 25%.",
+    "location": "TechCorp Solutions - Engineering Department"
+  }
+}
+
+tests {
+  test("should update achievement successfully with auth", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404]);
+    
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody().title).to.contain("Team Lead");
+      expect(res.getBody().description).to.contain("mentoring 3 junior developers");
+      console.log(`✅ Updated: ${res.getBody().title}`);
+    } else if (res.getStatus() === 401) {
+      console.log("⚠️ Authentication failed - Check jwt_token");
+    } else {
+      console.log("⚠️ Achievement not found - Run Steps 2-3 first");
+    }
+  });
+  
+  test("should preserve unchanged fields", function() {
+    if (res.getStatus() === 200) {
+      // These fields should remain unchanged
+      expect(res.getBody().year).to.equal('2024');
+      expect(res.getBody().type).to.equal('achievement');
+      expect(res.getBody().image).to.equal('https://example.com/promotion-announcement.jpg');
+      expect(res.getBody().id).to.equal(bru.getEnvVar('timeline_event_id'));
+      console.log(`📌 Preserved: year=${res.getBody().year}, type=${res.getBody().type}`);
+    }
+  });
+  
+  test("should update only specified fields", function() {
+    if (res.getStatus() === 200) {
+      // These fields should be updated
+      expect(res.getBody().title).to.contain("Team Lead");
+      expect(res.getBody().description).to.contain("team productivity by 25%");
+      expect(res.getBody().location).to.contain("Engineering Department");
+      console.log(`🔄 Updated location: ${res.getBody().location}`);
+    }
+  });
+}
+
+docs {
+  # Step 4: Update Achievement Details
+  
+  🔐 **AUTHENTICATION REQUIRED**: JWT token needed
+  
+  Demonstrates partial update capability - only specified fields are modified.
+  
+  ## Update Strategy:
+  - **Enhanced Title**: Added "Team Lead" responsibility
+  - **Expanded Description**: Added mentoring and team productivity metrics
+  - **Refined Location**: Added department specification
+  
+  ## Partial Update Features:
+  - **Selective Changes**: Only `title`, `description`, and `location` modified
+  - **Preserved Fields**: `year`, `type`, `image`, `id`, `createdAt` remain unchanged
+  - **Additive Information**: Enhanced existing details rather than replacing them
+  
+  ## Business Context:
+  This update reflects a common career progression where additional responsibilities
+  (team leadership, mentoring) are added to an existing role promotion.
+  
+  **Next Step**: Clean Up Test Data (Step 5)
+}

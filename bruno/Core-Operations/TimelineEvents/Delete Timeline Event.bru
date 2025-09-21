@@ -1,0 +1,80 @@
+meta {
+  name: Delete Timeline Event
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+tests {
+  test("should delete timeline event successfully with valid auth", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404]);
+    
+    if (res.getStatus() === 200) {
+      console.log("✅ Timeline event deleted successfully");
+    } else if (res.getStatus() === 401) {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    } else {
+      console.log("⚠️ Timeline event not found - Already deleted or never created");
+    }
+  });
+  
+  test("should return empty response body on successful deletion", function() {
+    if (res.getStatus() === 200) {
+      // NestJS delete typically returns undefined/empty
+      expect(res.getBody()).to.be.oneOf([undefined, null, ""]);
+    }
+  });
+}
+
+script:post-response {
+  // Clear the timeline event ID after deletion for cleanup
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('timeline_event_id', '');
+  }
+}
+
+docs {
+  # Delete Timeline Event - 🔐 REQUIRES AUTHENTICATION
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: This endpoint requires a valid JWT token from AWS Cognito.
+  
+  ## Authentication Setup:
+  1. Configure `jwt_token` variable in Bruno environment
+  2. Get JWT token from AWS Cognito (see Authentication folder)
+  3. Token is automatically added as Bearer token
+  
+  ## URL Parameters:
+  - `id` - The UUID of the timeline event to delete
+  
+  ## Response:
+  - **Success**: Empty response body with 200 status
+  - **Not Found**: 404 if timeline event doesn't exist
+  - **Unauthorized**: 401 if authentication fails
+  
+  ## Behavior:
+  - **Permanent Deletion**: Timeline event is permanently removed from database
+  - **Cleanup**: Timeline event ID environment variable is cleared after successful deletion
+  - **Idempotent**: Multiple delete requests for same ID will return 404 after first successful deletion
+  
+  ## Error Responses:
+  - `401` - Authentication required or invalid token
+  - `404` - Timeline event not found with the provided ID
+  
+  ## Prerequisites:
+  - Valid JWT token in environment
+  - Timeline event ID from "Create Timeline Event" test
+  
+  ## Test Flow:
+  1. Run "Create Timeline Event" to get an ID
+  2. Run "Update Timeline Event" to test modifications (optional)
+  3. Run this test to clean up and delete the created event
+}

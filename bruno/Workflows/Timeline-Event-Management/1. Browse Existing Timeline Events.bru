@@ -1,0 +1,44 @@
+meta {
+  name: 1. Browse Existing Timeline Events
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/timelineEvent
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should retrieve timeline events list", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.be.an('array');
+    console.log(`📋 Found ${res.getBody().length} existing timeline events`);
+  });
+  
+  test("timeline events should have valid structure", function() {
+    if (res.getBody().length > 0) {
+      const event = res.getBody()[0];
+      expect(event).to.have.property('id');
+      expect(event).to.have.property('type');
+      expect(event.type).to.be.oneOf(['education', 'achievement', 'work']);
+      console.log(`📌 Sample event: ${event.title} (${event.type}, ${event.year})`);
+    }
+  });
+}
+
+docs {
+  # Step 1: Browse Existing Timeline Events
+  
+  ✅ **PUBLIC ACCESS**: No authentication required
+  
+  First step in the workflow - explore what timeline events already exist in the system.
+  
+  This helps you understand:
+  - Current timeline event structure
+  - Available event types and their distribution
+  - Timeline chronology and data quality
+  
+  **Next Step**: Create Timeline Event (Step 2)
+}

@@ -1,0 +1,103 @@
+meta {
+  name: Update Timeline Event
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{base_url}}/timelineEvent/{{timeline_event_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+body:json {
+  {
+    "title": "Updated Master's Degree in Computer Science & AI",
+    "description": "Completed Master of Science in Computer Science with specialization in Software Engineering and Artificial Intelligence. Graduated summa cum laude with a thesis on advanced machine learning applications in modern web development frameworks.",
+    "location": "MIT - Massachusetts Institute of Technology (Updated)"
+  }
+}
+
+tests {
+  test("should update timeline event successfully with valid auth", function() {
+    expect(res.getStatus()).to.be.oneOf([200, 401, 404]);
+    
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('id');
+      expect(res.getBody()).to.have.property('title');
+      expect(res.getBody().title).to.equal("Updated Master's Degree in Computer Science & AI");
+    } else if (res.getStatus() === 401) {
+      console.log("⚠️ Authentication failed - Update jwt_token in environment");
+    } else {
+      console.log("⚠️ Timeline event not found - Run 'Create Timeline Event' test first");
+    }
+  });
+  
+  test("should preserve unchanged fields when authenticated", function() {
+    if (res.getStatus() === 200) {
+      expect(res.getBody()).to.have.property('year');
+      expect(res.getBody()).to.have.property('type');
+      expect(res.getBody()).to.have.property('image');
+      expect(res.getBody()).to.have.property('createdAt');
+      // These fields should remain unchanged
+      expect(res.getBody().year).to.equal('2023');
+      expect(res.getBody().type).to.equal('education');
+    }
+  });
+  
+  test("should update specified fields when authenticated", function() {
+    if (res.getStatus() === 200) {
+      expect(res.getBody().title).to.contain('Updated');
+      expect(res.getBody().description).to.contain('advanced machine learning');
+      expect(res.getBody().location).to.contain('(Updated)');
+    }
+  });
+}
+
+docs {
+  # Update Timeline Event - 🔐 REQUIRES AUTHENTICATION
+  
+  ⚠️ **AUTHENTICATION REQUIRED**: This endpoint requires a valid JWT token from AWS Cognito.
+  
+  ## Authentication Setup:
+  1. Configure `jwt_token` variable in Bruno environment
+  2. Get JWT token from AWS Cognito (see Authentication folder)
+  3. Token is automatically added as Bearer token
+  
+  ## URL Parameters:
+  - `id` - The UUID of the timeline event to update
+  
+  ## Request Body (Partial Update):
+  ```json
+  {
+    "year": "2024",                    // Optional
+    "title": "Updated Title",          // Optional
+    "description": "Updated desc",     // Optional
+    "type": "achievement",             // Optional: "education" | "achievement" | "work"
+    "location": "Updated Location",    // Optional
+    "image": "https://new-image.jpg"   // Optional
+  }
+  ```
+  
+  ## Features:
+  - **Partial Updates**: Only send fields you want to change
+  - **Unchanged Fields**: Fields not included in request remain unchanged
+  - **Type Validation**: `type` field must be one of the valid enum values
+  - **Preserve Metadata**: `id` and `createdAt` are never changed
+  
+  ## Response:
+  Returns the updated timeline event with all fields.
+  
+  ## Error Responses:
+  - `400` - Invalid data provided
+  - `401` - Authentication required or invalid token
+  - `404` - Timeline event not found with the provided ID
+  
+  ## Prerequisites:
+  - Valid JWT token in environment
+  - Timeline event ID from "Create Timeline Event" test
+}

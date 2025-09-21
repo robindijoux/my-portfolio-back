@@ -1,0 +1,61 @@
+meta {
+  name: List Timeline Events
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/timelineEvent
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should return timeline events list", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.be.an('array');
+  });
+  
+  test("each timeline event should have required properties", function() {
+    if (res.getBody().length > 0) {
+      const event = res.getBody()[0];
+      expect(event).to.have.property('id');
+      expect(event).to.have.property('year');
+      expect(event).to.have.property('title');
+      expect(event).to.have.property('description');
+      expect(event).to.have.property('type');
+      expect(event).to.have.property('image');
+      expect(event).to.have.property('createdAt');
+      expect(event.type).to.be.oneOf(['education', 'achievement', 'work']);
+    }
+  });
+}
+
+docs {
+  # List Timeline Events
+  
+  ✅ **PUBLIC ENDPOINT**: No authentication required
+  
+  Returns all timeline events sorted by year (descending) and creation date.
+  
+  ## Response Format:
+  ```json
+  [
+    {
+      "id": "uuid",
+      "year": "2023",
+      "title": "Bachelor Degree",
+      "description": "Completed Bachelor of Science in Computer Science",
+      "type": "education",
+      "location": "University of Technology",
+      "image": "https://example.com/image.jpg",
+      "createdAt": "2023-01-01T00:00:00.000Z"
+    }
+  ]
+  ```
+  
+  ## Timeline Event Types:
+  - `education` - Educational achievements
+  - `achievement` - Personal achievements
+  - `work` - Work experience
+}

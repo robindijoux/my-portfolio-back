@@ -1,0 +1,42 @@
+meta {
+  name: Filter Timeline Events by Type
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/timelineEvent?type=education
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should return filtered timeline events", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.be.an('array');
+  });
+  
+  test("all returned events should be of education type", function() {
+    if (res.getBody().length > 0) {
+      res.getBody().forEach(event => {
+        expect(event.type).to.equal('education');
+      });
+    }
+  });
+}
+
+docs {
+  # Filter Timeline Events by Type
+  
+  ✅ **PUBLIC ENDPOINT**: No authentication required
+  
+  Returns timeline events filtered by type.
+  
+  ## Query Parameters:
+  - `type` - Filter by event type: `education`, `achievement`, or `work`
+  
+  ## Example URLs:
+  - `/timelineEvent?type=education` - Educational achievements only
+  - `/timelineEvent?type=work` - Work experience only
+  - `/timelineEvent?type=achievement` - Personal achievements only
+}
