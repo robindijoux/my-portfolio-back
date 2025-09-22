@@ -1,18 +1,22 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: portfolio_postgres
+  mysql:
+    image: mysql:8.0
+    container_name: portfolio_mysql
     environment:
-      POSTGRES_DB: portfolio
-      POSTGRES_USER: portfolio_user
-      POSTGRES_PASSWORD: portfolio_password
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: portfolio_user
+      MYSQL_PASSWORD: portfolio_password
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
       - ./init-db:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U portfolio_user -d portfolio"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "portfolio_user", "-pportfolio_password"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,7 +33,7 @@ services:
     ports:
       - "3002:3002"
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     networks:
       - portfolio_network
@@ -39,7 +43,7 @@ services:
       - ./src:/app/src
 
 volumes:
-  postgres_data:
+  mysql_data:
   yarn_deps:
 
 networks:
