@@ -5,7 +5,7 @@ export class TimelineEventDB {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('datetime')
+  @Column('timestamp')
   timestamp: Date;
 
   @Column({ length: 255 })
@@ -26,6 +26,6 @@ export class TimelineEventDB {
   @Column({ length: 500 })
   image: string;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
 }

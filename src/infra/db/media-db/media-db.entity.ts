@@ -24,10 +24,10 @@ export class MediaDB {
   @Column({ type: 'varchar', length: 100 })
   mimeType: string;
 
-  @Column({ type: 'bigint', unsigned: true })
+  @Column({ type: 'bigint' })
   size: number;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   uploadedAt: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

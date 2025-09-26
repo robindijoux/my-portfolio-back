@@ -1,9 +1,9 @@
 export const env = {
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3001,
   DATABASE: {
-    TYPE: 'mysql' as const,
+    TYPE: 'postgres' as const,
     HOST: process.env.DB_HOST || 'localhost',
-    PORT: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+    PORT: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
     USERNAME: process.env.DB_USERNAME || 'portfolio_user',
     PASSWORD: process.env.DB_PASSWORD || 'portfolio_password',
     NAME: process.env.DB_NAME || 'portfolio',
