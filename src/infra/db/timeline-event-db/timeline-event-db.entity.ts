@@ -26,6 +26,6 @@ export class TimelineEventDB {
   @Column({ length: 500 })
   image: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }
