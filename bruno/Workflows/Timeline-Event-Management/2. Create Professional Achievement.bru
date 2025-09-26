@@ -7,11 +7,7 @@ meta {
 post {
   url: {{base_url}}/timelineEvent
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{jwt_token}}
+  auth: inherit
 }
 
 body:json {

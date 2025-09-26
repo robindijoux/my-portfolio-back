@@ -27,7 +27,7 @@ export class MediaDB {
   @Column({ type: 'bigint', unsigned: true })
   size: number;
 
-  @Column({ type: 'datetime' })
+  @CreateDateColumn()
   uploadedAt: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

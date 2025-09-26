@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('timeline_events')
 export class TimelineEventDB {
@@ -26,6 +26,6 @@ export class TimelineEventDB {
   @Column({ length: 500 })
   image: string;
 
-  @Column('datetime', { default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
 }

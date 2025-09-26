@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { MediaDB } from '../media-db/media-db.entity';
 import { TechnoDB } from '../techno-db/techno-db.entity';
 
@@ -25,10 +25,10 @@ export class ProjectDB {
   @Column({ nullable: true })
   isPublished: boolean;
 
-  @Column('date')
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column('date', { nullable: true })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { default: 0 })

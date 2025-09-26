@@ -7,11 +7,15 @@ meta {
 delete {
   url: {{base_url}}/timelineEvent/{{timeline_event_id}}
   body: none
-  auth: bearer
+  auth: inherit
 }
 
-auth:bearer {
-  token: {{jwt_token}}
+script:post-response {
+  // Clear environment variables after deletion
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('timeline_event_id', '');
+    console.log("🗑️ Environment variable 'timeline_event_id' cleared");
+  }
 }
 
 tests {
@@ -34,14 +38,6 @@ tests {
       expect(res.getBody()).to.be.oneOf([undefined, null, ""]);
     }
   });
-}
-
-script:post-response {
-  // Clear environment variables after deletion
-  if (res.getStatus() === 200) {
-    bru.setEnvVar('timeline_event_id', '');
-    console.log("🗑️ Environment variable 'timeline_event_id' cleared");
-  }
 }
 
 docs {
