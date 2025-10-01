@@ -1,0 +1,35 @@
+# terraform.tfvars.example
+# Copy this file to terraform.tfvars and fill in your actual values
+
+# Azure Configuration
+subscription_id      = "258231c8-4812-401c-8826-74d237aaa2b2"
+resource_group_name  = "portfolio"
+location            = "France Central"
+
+# Application Configuration
+app_name            = "portfolio-api"
+container_image     = "rbndjx/portfolio-backend:latest"
+container_port      = 3001
+environment_name    = "portfolio-env"
+
+# Frontend Configuration
+frontend_url = "https://your-frontend-domain.com"
+
+# Database Configuration
+db_host     = "your-db-host.postgres.database.azure.com"
+db_port     = 5432
+db_username = "your-db-username"
+db_password = "your-secure-password"
+db_name     = "portfolio"
+db_sync     = "false"
+
+# AWS Configuration
+aws_region              = "eu-west-3"
+aws_s3_bucket_name     = "your-s3-bucket-name"
+aws_access_key_id      = "your-aws-access-key"
+aws_secret_access_key  = "your-aws-secret-key"
+aws_cognito_user_pool_id = "your-cognito-pool-id"
+aws_cognito_client_id   = "your-cognito-client-id"
+
+# Logging
+log_analytics_workspace_name = "portfolio-logs"
