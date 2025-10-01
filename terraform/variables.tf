@@ -152,7 +152,7 @@ variable "owner" {
 variable "contact_email" {
   description = "Contact email for the resources"
   type        = string
-  default     = "contact@robindijoux.fr"
+  default     = "dr@ecomail.fr"
 }
 
 variable "cost_center" {
